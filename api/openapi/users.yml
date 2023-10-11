@@ -1,0 +1,196 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  description: TODO
+  version: 0.1.0
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+security:
+  - bearerAuth: []
+tags:
+  - name: User
+paths:
+  /user:
+    get:
+      operationId: getCurrentUser
+      tags: [User]
+      responses:
+        '200':
+          $ref: '#/components/responses/UserData'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /user/{userId}:
+    get:
+      operationId: getUser
+      tags: [User]
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/UserData'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+          
+  /user/{userId}/following:
+    get:
+      operationId: getUserFollows
+      tags: [User]
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/UserFollows'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+          
+  /user/{userId}/followers:
+    get:
+      operationId: getUserFollowers
+      tags: [User]
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/UserFollowers'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+  
+  /user/{userId}/follow:
+    post:
+      operationId: followUser
+      tags: [User]
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/FollowStatus'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+          
+  /user/{userId}/unfollow:
+    post:
+      operationId: unfollowUser
+      tags: [User]
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/FollowStatus'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+  
+components:
+  schemas:
+    User:
+      type: object
+      required: [id, name, registrationDate, karma, postsCount]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        registrationDate:
+          type: string
+          format: date-time
+        lastLogin:
+          type: string
+          format: date-time
+        karma:
+          type: integer
+        postsCount:
+          type: integer
+          
+    UserArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+        
+    Error:
+      type: object
+      required:
+        - slug
+        - message
+      properties:
+        slug:
+          type: string
+        message:
+          type: string
+          
+  responses:
+    UserData:
+      description: Information about user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+            
+    UserFollows:
+      description: User's followed users
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserArray'
+            
+    UserFollowers:
+      description: Users following user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserArray'
+    
+    FollowStatus:
+      description: Follow status
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [status]
+            properties:
+              status:
+                type: string
+            
+    NotFound:
+      description: Page not found
+    
+    UnexpectedError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,0 +1,269 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  description: TODO
+  version: 0.1.0
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+security:
+  - bearerAuth: []
+tags:
+  - name: Posts
+paths:
+  /posts:
+    get:
+      operationId: getPosts
+      tags: [Posts]
+      parameters:
+        - in: query
+          name: author
+          required: false
+          schema:
+            type: string
+          example: id123456789
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+          example: 5
+        - in: query
+          name: dateFrom
+          required: false
+          schema:
+            type: string
+            format: date-time
+          example: "2023-10-15"
+        - in: query
+          name: dateTo
+          required: false
+          schema:
+            type: string
+            format: date-time
+          example: "2023-10-25"
+        - in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+          examples:
+            sortByNewest:
+              summary: Newer posts first
+              value: newest
+            sortByOldest:
+              summary: Older posts first
+              value: oldest
+            sortByUpvoted:
+              summary: More upvoted posts first
+              value: upvoted
+            sortByDownvoted:
+              summary: More downvoted posts first
+              value: downvoted
+        - in: query
+          name: vote
+          description: Vote from current user
+          required: false
+          schema:
+            type: string
+          examples:
+            upvoted: 
+              summary: Upvoted
+              value: up
+            downvoted: 
+              summary: Downvoted
+              value: down
+      responses:
+        '200':
+          $ref: '#/components/responses/Posts'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    post:
+      operationId: createPost
+      tags: [Posts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePost'
+      responses:
+        '201':
+          $ref: '#/components/responses/PostCreated'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /posts/feed:
+    get:
+      operationId: getFeed
+      tags: [Posts]
+      responses:
+        '200':
+          $ref: '#/components/responses/Posts'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /posts/{postId}:
+    get:
+      operationId: getPost
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Requested post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: deletePost
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '204':
+          description: Post deleted
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+          
+  /posts/{postId}/upvote:
+    post:
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Upvote status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+          
+  /posts/{postId}/downvote:
+    post:
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Downvote status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+  
+components:
+  schemas:
+    Post:
+      type: object
+      required: [id, content, karma, postDate, author]
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        karma:
+          type: integer
+        postDate:
+          type: string
+          format: date-time
+        author:
+          type: string
+          
+    PostArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Post'
+        
+    CreatePost:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        
+    Status:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+        
+    Error:
+      type: object
+      required:
+        - slug
+        - message
+      properties:
+        slug:
+          type: string
+        message:
+          type: string
+          
+  responses:
+    Posts:
+      description: Posts array
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PostArray'
+            
+    PostCreated:
+      description: Post created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Status'
+      headers:
+        Location:
+          description: Newly created post's location
+          schema:
+            type: string
+            
+    NotFound:
+      description: Page not found
+    
+    UnexpectedError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

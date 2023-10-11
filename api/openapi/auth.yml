@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  description: TODO
+  version: 0.1.0
+servers:
+  - url: https://{hostname}/api
+    variables:
+      hostname:
+        default: localhost
+secutity: []
+tags:
+  - name: Auth
+    description: Authtorization
+paths:
+  /auth/signup:
+    post:
+      operationId: signUp
+      tags: [Auth]
+      security: []
+      requestBody:
+        description: Credentials to register
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUp'
+      responses:
+        '200':
+          $ref: '#/components/responses/SignUpResult'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+  /auth/signin:
+    post:
+      tags: [Auth]
+      operationId: signIn
+      requestBody:
+        description: Credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignIn'
+      responses:
+        '200':
+          $ref: '#/components/responses/SignInResult'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+          
+  
+components:
+  schemas:
+    SignUp:
+      type: object
+      required: [name, username, password]
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+
+    SignIn:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+          
+    Error:
+      type: object
+      required:
+        - slug
+        - message
+      properties:
+        slug:
+          type: string
+        message:
+          type: string
+          
+  responses:
+    SignUpResult:
+      description: Sign up status
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [status]
+            properties:
+              status:
+                type: string
+              userId:
+                type: integer
+                format: int64
+          
+    SignInResult:
+      description: Sign in status
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [status]
+            properties:
+              status:
+                type: string
+              token:
+                type: string
+    
+    UnexpectedError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
