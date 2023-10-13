@@ -1,21 +1,23 @@
 package ports
 
 import (
+	"errors"
 	"net/http"
-	"time"
 
+	"github.com/OrIX219/SomethingSocial/internal/auth/app"
+	"github.com/OrIX219/SomethingSocial/internal/auth/app/command"
+	"github.com/OrIX219/SomethingSocial/internal/auth/app/query"
 	auth "github.com/OrIX219/SomethingSocial/internal/auth/domain/user"
 	"github.com/OrIX219/SomethingSocial/internal/common/server/httperr"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/render"
 )
 
 type HttpServer struct {
-	repo auth.Repository
+	app app.Application
 }
 
-func NewHttpServer(repo auth.Repository) HttpServer {
-	return HttpServer{repo}
+func NewHttpServer(app app.Application) HttpServer {
+	return HttpServer{app}
 }
 
 func (h HttpServer) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -24,28 +26,52 @@ func (h HttpServer) SignUp(w http.ResponseWriter, r *http.Request) {
 		httperr.BadRequest("invalid-request", err, w, r)
 		return
 	}
-
-	// TODO: move all this logic to CQRS when it is implemented
-	user, err := auth.NewUser(0, signUp.Username, signUp.Password)
-	if err != nil {
+	if err := validateSignUpRequest(signUp); err != nil {
 		httperr.BadRequest("invalid-request", err, w, r)
 		return
 	}
 
-	if usr, _ := h.repo.GetUserByUsername(signUp.Username); usr != nil {
-		render.Respond(w, r, SignUpResult{
-			Status: "username already exists",
-		})
+	cmd := command.AddUser{
+		Username: signUp.Username,
+		Password: signUp.Password,
+	}
+	err := h.app.Commands.AddUser.Handle(cmd)
+	if err != nil {
+		switch err.(type) {
+		case command.UsernameExistsError:
+			render.Respond(w, r, SignUpResult{
+				Status: "username already exists",
+			})
+		default:
+			httperr.RespondWithSlugError(err, w, r)
+		}
 		return
 	}
 
-	// TODO: hash password before storing
-	id, err := h.repo.AddUser(user)
+	id, err := h.app.Queries.GetUserId.Handle(query.GetUserId{
+		Username: signUp.Username,
+		Password: signUp.Password,
+	})
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
 
 	render.Respond(w, r, SignUpResult{
 		Status: "ok",
 		UserId: &id,
 	})
+}
+
+func validateSignUpRequest(signUp SignUp) error {
+	if signUp.Username == "" {
+		return errors.New("Empty user username")
+	}
+	if signUp.Password == "" {
+		return errors.New("Empty user password")
+	}
+
+	return nil
 }
 
 func (h HttpServer) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -54,9 +80,15 @@ func (h HttpServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		httperr.BadRequest("invalid-request", err, w, r)
 		return
 	}
+	if err := validateSignInRequest(signIn); err != nil {
+		httperr.BadRequest("invalid-request", err, w, r)
+		return
+	}
 
-	// TODO: move all this logic to CQRS when it is implemented
-	user, err := h.repo.GetUser(signIn.Username, signIn.Password)
+	id, err := h.app.Queries.GetUserId.Handle(query.GetUserId{
+		Username: signIn.Username,
+		Password: signIn.Password,
+	})
 	if err != nil {
 		switch err.(type) {
 		case auth.UserNotFoundError:
@@ -69,17 +101,11 @@ func (h HttpServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),
-			IssuedAt:  time.Now().Unix(),
-		},
-		user.Id(),
+	signedToken, err := h.app.Queries.GenerateToken.Handle(query.GenerateToken{
+		UserId: id,
 	})
-
-	signedToken, err := token.SignedString([]byte("mock_secret"))
 	if err != nil {
-		httperr.InternalError("token-error", err, w, r)
+		httperr.RespondWithSlugError(err, w, r)
 		return
 	}
 
@@ -89,7 +115,13 @@ func (h HttpServer) SignIn(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-type tokenClaims struct {
-	jwt.StandardClaims
-	UserId int64 `json:"user_id"`
+func validateSignInRequest(signIn SignIn) error {
+	if signIn.Username == "" {
+		return errors.New("Empty user username")
+	}
+	if signIn.Password == "" {
+		return errors.New("Empty user password")
+	}
+
+	return nil
 }

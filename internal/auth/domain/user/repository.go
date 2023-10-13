@@ -4,9 +4,8 @@ import "fmt"
 
 type Repository interface {
 	AddUser(user *User) (int64, error)
-	GetUser(username, password string) (*User, error)
+	GetUserId(user *User) (int64, error)
 	GetUserByUsername(username string) (*User, error)
-	GetUserById(userId int) (*User, error)
 }
 
 type UserNotFoundError struct {

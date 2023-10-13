@@ -1,6 +1,10 @@
 package auth
 
-import "errors"
+import (
+	"crypto/sha1"
+	"errors"
+	"fmt"
+)
 
 type User struct {
 	id       int64
@@ -8,20 +12,15 @@ type User struct {
 	password string
 }
 
-func NewUser(id int64, username, password string) (*User, error) {
-	if id < 0 {
-		return nil, errors.New("Invalid user id")
-	}
-	if username == "" {
-		return nil, errors.New("Empty user username")
-	}
-	if password == "" {
-		return nil, errors.New("Empty user password")
+func NewUser(username, password string) (*User, error) {
+	if err := validateUserData(0, username, password); err != nil {
+		return nil, err
 	}
 
 	return &User{
+		id:       0,
 		username: username,
-		password: password,
+		password: generatePasswordHash(password),
 	}, nil
 }
 
@@ -38,10 +37,32 @@ func (u User) Password() string {
 }
 
 func UnmarshalFromRepository(id int64, username, password string) (*User, error) {
-	user, err := NewUser(id, username, password)
-	if err != nil {
+	if err := validateUserData(id, username, password); err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return &User{
+		id:       id,
+		username: username,
+		password: password,
+	}, nil
+}
+
+func validateUserData(id int64, username, password string) error {
+	if id < 0 {
+		return errors.New("Invalid user id")
+	}
+	if username == "" {
+		return errors.New("Empty user username")
+	}
+	if password == "" {
+		return errors.New("Empty user password")
+	}
+	return nil
+}
+
+func generatePasswordHash(password string) string {
+	hash := sha1.New()
+	hash.Write([]byte(password))
+	return fmt.Sprintf("%x", hash.Sum([]byte("mock_salt")))
 }

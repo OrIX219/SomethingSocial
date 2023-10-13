@@ -30,16 +30,17 @@ func (r *UsersInMemoryRepository) AddUser(user *auth.User) (int64, error) {
 	return id, nil
 }
 
-func (r *UsersInMemoryRepository) GetUser(username, password string) (*auth.User, error) {
+func (r *UsersInMemoryRepository) GetUserId(user *auth.User) (int64, error) {
 	for i := range r.users {
-		if r.users[i].Username == username && r.users[i].Password == password {
-			return r.unmarshalUser(r.users[i])
+		if r.users[i].Username == user.Username() &&
+			r.users[i].Password == user.Password() {
+			return r.users[i].Id, nil
 		}
 	}
 
-	return nil, auth.UserNotFoundError{
-		Username: username,
-		Password: password,
+	return -1, auth.UserNotFoundError{
+		Username: user.Username(),
+		Password: user.Password(),
 	}
 }
 
@@ -54,16 +55,6 @@ func (r *UsersInMemoryRepository) GetUserByUsername(username string) (*auth.User
 		Username: username,
 		Password: "",
 	}
-}
-
-func (r *UsersInMemoryRepository) GetUserById(userId int) (*auth.User, error) {
-	if userId >= len(r.users) {
-		return nil, auth.UserIdNotFoundError{
-			Id: userId,
-		}
-	}
-
-	return r.unmarshalUser(r.users[userId])
 }
 
 func (r *UsersInMemoryRepository) marshalUser(user *auth.User) UserModel {
