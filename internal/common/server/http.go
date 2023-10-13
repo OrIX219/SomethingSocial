@@ -24,7 +24,7 @@ func RunHTTPServerOnAddr(addr string,
 	rootRouter := chi.NewRouter()
 	rootRouter.Mount("/api", createHandler(apiRouter))
 
-	logrus.Info("Starting HTTP server")
+	logrus.WithField("port", addr).Info("Starting HTTP server")
 
 	err := http.ListenAndServe(addr, rootRouter)
 	if err != nil {
