@@ -1,6 +1,10 @@
 package command
 
-import users "github.com/OrIX219/SomethingSocial/internal/users/domain/user"
+import (
+	"context"
+
+	users "github.com/OrIX219/SomethingSocial/internal/users/domain/user"
+)
 
 type UpdateKarma struct {
 	UserId int64
@@ -21,7 +25,7 @@ func NewUpdateKarmaHandler(repo users.Repository) UpdateKarmaHandler {
 	}
 }
 
-func (h UpdateKarmaHandler) Handle(cmd UpdateKarma) error {
+func (h UpdateKarmaHandler) Handle(ctx context.Context, cmd UpdateKarma) error {
 	return h.repo.UpdateUser(cmd.UserId,
 		func(user *users.User) (*users.User, error) {
 			user.UpdateKarma(cmd.Delta)

@@ -15,7 +15,7 @@ type User struct {
 }
 
 func NewUser(id int64, name string) (*User, error) {
-	if err := validateUserData(id, name); err != nil {
+	if err := validateUserData(id, name, time.Now(), time.Now(), 0); err != nil {
 		return nil, err
 	}
 

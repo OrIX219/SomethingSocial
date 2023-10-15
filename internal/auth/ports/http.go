@@ -32,10 +32,11 @@ func (h HttpServer) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cmd := command.AddUser{
+		Name:     signUp.Name,
 		Username: signUp.Username,
 		Password: signUp.Password,
 	}
-	err := h.app.Commands.AddUser.Handle(cmd)
+	err := h.app.Commands.AddUser.Handle(r.Context(), cmd)
 	if err != nil {
 		switch err.(type) {
 		case command.UsernameExistsError:
@@ -48,7 +49,7 @@ func (h HttpServer) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.app.Queries.GetUserId.Handle(query.GetUserId{
+	id, err := h.app.Queries.GetUserId.Handle(r.Context(), query.GetUserId{
 		Username: signUp.Username,
 		Password: signUp.Password,
 	})
@@ -85,7 +86,7 @@ func (h HttpServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.app.Queries.GetUserId.Handle(query.GetUserId{
+	id, err := h.app.Queries.GetUserId.Handle(r.Context(), query.GetUserId{
 		Username: signIn.Username,
 		Password: signIn.Password,
 	})
@@ -101,9 +102,10 @@ func (h HttpServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	signedToken, err := h.app.Queries.GenerateToken.Handle(query.GenerateToken{
-		UserId: id,
-	})
+	signedToken, err := h.app.Queries.GenerateToken.Handle(r.Context(),
+		query.GenerateToken{
+			UserId: id,
+		})
 	if err != nil {
 		httperr.RespondWithSlugError(err, w, r)
 		return

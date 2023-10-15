@@ -13,7 +13,7 @@ import (
 func main() {
 	logs.Init()
 
-	app := service.NewApplication()
+	app, _ := service.NewApplication()
 
 	server.RunHTTPServer(func(router chi.Router) http.Handler {
 		return ports.HandlerFromMux(ports.NewHttpServer(app), router)

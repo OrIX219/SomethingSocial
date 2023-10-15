@@ -1,6 +1,10 @@
 package command
 
-import users "github.com/OrIX219/SomethingSocial/internal/users/domain/user"
+import (
+	"context"
+
+	users "github.com/OrIX219/SomethingSocial/internal/users/domain/user"
+)
 
 type AddUser struct {
 	UserId int64
@@ -21,7 +25,7 @@ func NewAddUserHandler(repo users.Repository) AddUserHandler {
 	}
 }
 
-func (h AddUserHandler) Handle(cmd AddUser) error {
+func (h AddUserHandler) Handle(ctx context.Context, cmd AddUser) error {
 	user, err := users.NewUser(cmd.UserId, cmd.Name)
 	if err != nil {
 		return err

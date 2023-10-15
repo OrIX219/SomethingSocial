@@ -9,7 +9,7 @@ import (
 	"github.com/OrIX219/SomethingSocial/internal/users/app/query"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/internal/status"
+	"google.golang.org/grpc/status"
 )
 
 type GrpcServer struct {
@@ -22,7 +22,7 @@ func NewGrpcServer(app app.Application) GrpcServer {
 
 func (g GrpcServer) AddUser(ctx context.Context,
 	request *users.AddUserRequest) (*empty.Empty, error) {
-	err := g.app.Commands.AddUser.Handle(command.AddUser{
+	err := g.app.Commands.AddUser.Handle(ctx, command.AddUser{
 		UserId: request.UserId,
 		Name:   request.Name,
 	})
@@ -35,7 +35,7 @@ func (g GrpcServer) AddUser(ctx context.Context,
 
 func (g GrpcServer) GetKarma(ctx context.Context,
 	request *users.GetKarmaRequest) (*users.GetKarmaResponse, error) {
-	karma, err := g.app.Queries.GetKarma.Handle(query.GetKarma{
+	karma, err := g.app.Queries.GetKarma.Handle(ctx, query.GetKarma{
 		UserId: request.UserId,
 	})
 	if err != nil {
@@ -49,7 +49,7 @@ func (g GrpcServer) GetKarma(ctx context.Context,
 
 func (g GrpcServer) UpdateKarma(ctx context.Context,
 	request *users.UpdateKarmaRequest) (*empty.Empty, error) {
-	err := g.app.Commands.UpdateKarma.Handle(command.UpdateKarma{
+	err := g.app.Commands.UpdateKarma.Handle(ctx, command.UpdateKarma{
 		UserId: request.UserId,
 		Delta:  request.Delta,
 	})

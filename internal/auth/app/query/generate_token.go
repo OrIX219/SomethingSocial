@@ -1,6 +1,7 @@
 package query
 
 import (
+	"context"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -16,7 +17,7 @@ func NewGenerateTokenHandler() GenerateTokenHandler {
 	return GenerateTokenHandler{}
 }
 
-func (h GenerateTokenHandler) Handle(query GenerateToken) (string, error) {
+func (h GenerateTokenHandler) Handle(ctx context.Context, query GenerateToken) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),

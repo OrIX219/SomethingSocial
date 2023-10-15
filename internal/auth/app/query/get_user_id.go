@@ -1,6 +1,10 @@
 package query
 
-import auth "github.com/OrIX219/SomethingSocial/internal/auth/domain/user"
+import (
+	"context"
+
+	auth "github.com/OrIX219/SomethingSocial/internal/auth/domain/user"
+)
 
 type GetUserId struct {
 	Username string
@@ -25,7 +29,7 @@ type GetUserIdReadModel interface {
 	GetUserId(user *auth.User) (int64, error)
 }
 
-func (h GetUserIdHadler) Handle(query GetUserId) (int64, error) {
+func (h GetUserIdHadler) Handle(ctx context.Context, query GetUserId) (int64, error) {
 	user, err := auth.NewUser(query.Username, query.Password)
 	if err != nil {
 		return -1, err
