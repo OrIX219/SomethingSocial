@@ -26,6 +26,12 @@ func BadRequest(slug string, err error,
 		"Bad request", http.StatusBadRequest)
 }
 
+func NotFound(slug string, err error,
+	w http.ResponseWriter, r *http.Request) {
+	httpResopndWithError(err, slug, w, r,
+		"Not found", http.StatusNotFound)
+}
+
 func RespondWithSlugError(err error, w http.ResponseWriter, r *http.Request) {
 	slugError, ok := err.(errors.SlugError)
 	if !ok {
@@ -38,6 +44,8 @@ func RespondWithSlugError(err error, w http.ResponseWriter, r *http.Request) {
 		Unauthorized(slugError.Slug(), slugError, w, r)
 	case errors.ErrorTypeIncorrectInput:
 		BadRequest(slugError.Slug(), slugError, w, r)
+	case errors.ErrorTypeNotFound:
+		NotFound(slugError.Slug(), slugError, w, r)
 	default:
 		InternalError(slugError.Slug(), slugError, w, r)
 	}

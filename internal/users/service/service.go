@@ -16,11 +16,16 @@ func newApplication() app.Application {
 
 	return app.Application{
 		Commands: app.Commands{
-			AddUser:     command.NewAddUserHandler(repo),
-			UpdateKarma: command.NewUpdateKarmaHandler(repo),
+			AddUser:      command.NewAddUserHandler(repo),
+			UpdateKarma:  command.NewUpdateKarmaHandler(repo),
+			FollowUser:   command.NewFollowUserHandler(repo),
+			UnfollowUser: command.NewUnfollowUserHandler(repo),
 		},
 		Queries: app.Queries{
-			GetKarma: query.NewGetKarmaHandler(repo),
+			GetKarma:     query.NewGetKarmaHandler(repo),
+			GetUser:      query.NewGetUserHandler(repo),
+			GetFollowing: query.NewGetFollowingHandler(repo),
+			GetFollowers: query.NewGetFollowersHandler(repo),
 		},
 	}
 }

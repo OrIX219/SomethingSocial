@@ -12,21 +12,17 @@ type GetUserId struct {
 }
 
 type GetUserIdHadler struct {
-	readModel GetUserIdReadModel
+	repo auth.Repository
 }
 
-func NewGetUserIdHandler(readModel GetUserIdReadModel) GetUserIdHadler {
-	if readModel == nil {
-		panic("GetUserHandler nil readModel")
+func NewGetUserIdHandler(repo auth.Repository) GetUserIdHadler {
+	if repo == nil {
+		panic("GetUserHandler nil repo")
 	}
 
 	return GetUserIdHadler{
-		readModel: readModel,
+		repo: repo,
 	}
-}
-
-type GetUserIdReadModel interface {
-	GetUserId(user *auth.User) (int64, error)
 }
 
 func (h GetUserIdHadler) Handle(ctx context.Context, query GetUserId) (int64, error) {
@@ -35,5 +31,5 @@ func (h GetUserIdHadler) Handle(ctx context.Context, query GetUserId) (int64, er
 		return -1, err
 	}
 
-	return h.readModel.GetUserId(user)
+	return h.repo.GetUserId(user)
 }

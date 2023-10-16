@@ -19,19 +19,19 @@ type ServerInterface interface {
 	GetCurrentUser(w http.ResponseWriter, r *http.Request)
 
 	// (GET /user/{userId})
-	GetUser(w http.ResponseWriter, r *http.Request, userId string)
+	GetUser(w http.ResponseWriter, r *http.Request, userId int64)
 
 	// (POST /user/{userId}/follow)
-	FollowUser(w http.ResponseWriter, r *http.Request, userId string)
+	FollowUser(w http.ResponseWriter, r *http.Request, userId int64)
 
 	// (GET /user/{userId}/followers)
-	GetUserFollowers(w http.ResponseWriter, r *http.Request, userId string)
+	GetUserFollowers(w http.ResponseWriter, r *http.Request, userId int64)
 
 	// (GET /user/{userId}/following)
-	GetUserFollows(w http.ResponseWriter, r *http.Request, userId string)
+	GetUserFollows(w http.ResponseWriter, r *http.Request, userId int64)
 
 	// (POST /user/{userId}/unfollow)
-	UnfollowUser(w http.ResponseWriter, r *http.Request, userId string)
+	UnfollowUser(w http.ResponseWriter, r *http.Request, userId int64)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -44,27 +44,27 @@ func (_ Unimplemented) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // (GET /user/{userId})
-func (_ Unimplemented) GetUser(w http.ResponseWriter, r *http.Request, userId string) {
+func (_ Unimplemented) GetUser(w http.ResponseWriter, r *http.Request, userId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // (POST /user/{userId}/follow)
-func (_ Unimplemented) FollowUser(w http.ResponseWriter, r *http.Request, userId string) {
+func (_ Unimplemented) FollowUser(w http.ResponseWriter, r *http.Request, userId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // (GET /user/{userId}/followers)
-func (_ Unimplemented) GetUserFollowers(w http.ResponseWriter, r *http.Request, userId string) {
+func (_ Unimplemented) GetUserFollowers(w http.ResponseWriter, r *http.Request, userId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // (GET /user/{userId}/following)
-func (_ Unimplemented) GetUserFollows(w http.ResponseWriter, r *http.Request, userId string) {
+func (_ Unimplemented) GetUserFollows(w http.ResponseWriter, r *http.Request, userId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // (POST /user/{userId}/unfollow)
-func (_ Unimplemented) UnfollowUser(w http.ResponseWriter, r *http.Request, userId string) {
+func (_ Unimplemented) UnfollowUser(w http.ResponseWriter, r *http.Request, userId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -101,7 +101,7 @@ func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Reques
 	var err error
 
 	// ------------- Path parameter "userId" -------------
-	var userId string
+	var userId int64
 
 	err = runtime.BindStyledParameterWithLocation("simple", false, "userId", runtime.ParamLocationPath, chi.URLParam(r, "userId"), &userId)
 	if err != nil {
@@ -129,7 +129,7 @@ func (siw *ServerInterfaceWrapper) FollowUser(w http.ResponseWriter, r *http.Req
 	var err error
 
 	// ------------- Path parameter "userId" -------------
-	var userId string
+	var userId int64
 
 	err = runtime.BindStyledParameterWithLocation("simple", false, "userId", runtime.ParamLocationPath, chi.URLParam(r, "userId"), &userId)
 	if err != nil {
@@ -157,7 +157,7 @@ func (siw *ServerInterfaceWrapper) GetUserFollowers(w http.ResponseWriter, r *ht
 	var err error
 
 	// ------------- Path parameter "userId" -------------
-	var userId string
+	var userId int64
 
 	err = runtime.BindStyledParameterWithLocation("simple", false, "userId", runtime.ParamLocationPath, chi.URLParam(r, "userId"), &userId)
 	if err != nil {
@@ -185,7 +185,7 @@ func (siw *ServerInterfaceWrapper) GetUserFollows(w http.ResponseWriter, r *http
 	var err error
 
 	// ------------- Path parameter "userId" -------------
-	var userId string
+	var userId int64
 
 	err = runtime.BindStyledParameterWithLocation("simple", false, "userId", runtime.ParamLocationPath, chi.URLParam(r, "userId"), &userId)
 	if err != nil {
@@ -213,7 +213,7 @@ func (siw *ServerInterfaceWrapper) UnfollowUser(w http.ResponseWriter, r *http.R
 	var err error
 
 	// ------------- Path parameter "userId" -------------
-	var userId string
+	var userId int64
 
 	err = runtime.BindStyledParameterWithLocation("simple", false, "userId", runtime.ParamLocationPath, chi.URLParam(r, "userId"), &userId)
 	if err != nil {

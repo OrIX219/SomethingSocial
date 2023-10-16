@@ -19,12 +19,12 @@ type Error struct {
 
 // User defines model for User.
 type User struct {
-	Id               string     `json:"id"`
-	Karma            int        `json:"karma"`
-	LastLogin        *time.Time `json:"lastLogin,omitempty"`
-	Name             string     `json:"name"`
-	PostsCount       int        `json:"postsCount"`
-	RegistrationDate time.Time  `json:"registrationDate"`
+	Id               int64     `json:"id"`
+	Karma            int64     `json:"karma"`
+	LastLogin        time.Time `json:"lastLogin"`
+	Name             string    `json:"name"`
+	PostsCount       int64     `json:"postsCount"`
+	RegistrationDate time.Time `json:"registrationDate"`
 }
 
 // UserArray defines model for UserArray.

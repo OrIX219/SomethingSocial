@@ -32,7 +32,7 @@ func HttpMockMiddleware(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), userContextKey, User{
-			Id:   claims["user_id"].(string),
+			Id:   claims["user_id"].(int64),
 			Role: claims["role"].(string),
 		})
 		r = r.WithContext(ctx)

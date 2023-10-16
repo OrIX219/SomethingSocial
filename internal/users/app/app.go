@@ -11,10 +11,15 @@ type Application struct {
 }
 
 type Commands struct {
-	AddUser     command.AddUserHandler
-	UpdateKarma command.UpdateKarmaHandler
+	AddUser      command.AddUserHandler
+	UpdateKarma  command.UpdateKarmaHandler
+	FollowUser   command.FollowUserHandler
+	UnfollowUser command.UnfollowUserHandler
 }
 
 type Queries struct {
-	GetKarma query.GetKarmaHandler
+	GetKarma     query.GetKarmaHandler
+	GetUser      query.GetUserHandler
+	GetFollowing query.GetFollowingHandler
+	GetFollowers query.GetFollowersHandler
 }
