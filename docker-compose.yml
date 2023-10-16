@@ -1,0 +1,49 @@
+version: '3.8'
+name: 'somethingsocial'
+services:
+  auth-http:
+    build:
+      context: docker
+    volumes:
+      - ./internal:/internal
+      - ~/go/pkg:/go/pkg
+      - ./.go-cache:/go-cache
+    working_dir: /internal/auth
+    ports:
+      - "127.0.0.1:3000:$PORT"
+    env_file:
+      - .env
+    environment:
+      GOCACHE: /go-cache
+
+  users-http:
+    build:
+      context: docker
+    volumes:
+      - ./internal:/internal
+      - ~/go/pkg:/go/pkg
+      - ./.go-cache:/go-cache
+    working_dir: /internal/users
+    ports:
+      - "127.0.0.1:3001:$PORT"
+    env_file:
+      - .env
+    environment:
+      SERVER_TYPE: http
+      GOCACHE: /go-cache
+
+  users-grpc:
+    build:
+      context: docker
+    volumes:
+      - ./internal:/internal
+      - ~/go/pkg:/go/pkg
+      - ./.go-cache:/go-cache
+    working_dir: /internal/users
+    ports:
+      - "127.0.0.1:3010:$PORT"
+    env_file:
+      - .env
+    environment:
+      SERVER_TYPE: grpc
+      GOCACHE: /go-cache
