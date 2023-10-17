@@ -1,6 +1,9 @@
 package service
 
 import (
+	"os"
+
+	"github.com/OrIX219/SomethingSocial/internal/common/client"
 	"github.com/OrIX219/SomethingSocial/internal/users/adapters"
 	"github.com/OrIX219/SomethingSocial/internal/users/app"
 	"github.com/OrIX219/SomethingSocial/internal/users/app/command"
@@ -9,7 +12,11 @@ import (
 )
 
 func NewApplication() app.Application {
-	repo := adapters.NewUsersInMemoryRepository(10)
+	db, err := client.NewPostgres(os.Getenv("USERS_POSTGRES_ADDR"))
+	if err != nil {
+		panic(err)
+	}
+	repo := adapters.NewUsersPostgresRepository(db)
 
 	return newApplication(repo)
 }

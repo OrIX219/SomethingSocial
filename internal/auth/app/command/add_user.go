@@ -47,12 +47,12 @@ func (h AddUserHandler) Handle(ctx context.Context, cmd AddUser) error {
 		}
 	}
 
-	_, err = h.repo.AddUser(user)
+	id, err := h.repo.AddUser(user)
 	if err != nil {
 		return err
 	}
 
-	return h.usersService.AddUser(ctx, user.Id(), cmd.Name)
+	return h.usersService.AddUser(ctx, id, cmd.Name)
 }
 
 type UsernameExistsError struct {

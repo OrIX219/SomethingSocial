@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	auth "github.com/OrIX219/SomethingSocial/internal/auth/domain/user"
@@ -33,6 +34,10 @@ func NewUsersPostgresRepository(db *sqlx.DB) *UsersPostgresRepository {
 }
 
 func (r *UsersPostgresRepository) AddUser(user *auth.User) (int64, error) {
+	if user == nil {
+		return -1, errors.New("nil user")
+	}
+
 	var id int64
 	query := fmt.Sprintf(`INSERT INTO %s (username, password_hash)
 		VALUES ($1, $2) RETURNING id`, usersTable)
@@ -45,6 +50,10 @@ func (r *UsersPostgresRepository) AddUser(user *auth.User) (int64, error) {
 }
 
 func (r *UsersPostgresRepository) GetUserId(user *auth.User) (int64, error) {
+	if user == nil {
+		return -1, errors.New("nil user")
+	}
+
 	var id int64
 	query := fmt.Sprintf(`SELECT id FROM %s
 		WHERE username=$1 AND password_hash=$2`, usersTable)

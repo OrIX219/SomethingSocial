@@ -104,14 +104,8 @@ func (h HttpServer) UnfollowUser(w http.ResponseWriter, r *http.Request, userId 
 }
 
 func (h HttpServer) GetUserFollowers(w http.ResponseWriter, r *http.Request, userId int64) {
-	currentUser, err := auth.UserFromCtx(r.Context())
-	if err != nil {
-		httperr.RespondWithSlugError(err, w, r)
-		return
-	}
-
 	followers, err := h.app.Queries.GetFollowers.Handle(r.Context(), query.GetFollowers{
-		UserId: currentUser.Id,
+		UserId: userId,
 	})
 	if err != nil {
 		switch err.(type) {
@@ -127,14 +121,8 @@ func (h HttpServer) GetUserFollowers(w http.ResponseWriter, r *http.Request, use
 }
 
 func (h HttpServer) GetUserFollows(w http.ResponseWriter, r *http.Request, userId int64) {
-	currentUser, err := auth.UserFromCtx(r.Context())
-	if err != nil {
-		httperr.RespondWithSlugError(err, w, r)
-		return
-	}
-
 	following, err := h.app.Queries.GetFollowing.Handle(r.Context(), query.GetFollowing{
-		UserId: currentUser.Id,
+		UserId: userId,
 	})
 	if err != nil {
 		switch err.(type) {

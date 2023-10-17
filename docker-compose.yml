@@ -36,6 +36,9 @@ services:
     environment:
       SERVER_TYPE: http
       GOCACHE: /go-cache
+    depends_on:
+      users-postgres:
+        condition: service_healthy
 
   users-grpc:
     container_name: users-grpc
@@ -53,6 +56,9 @@ services:
     environment:
       SERVER_TYPE: grpc
       GOCACHE: /go-cache
+    depends_on:
+      users-postgres:
+        condition: service_healthy
 
   auth-postgres:
     container_name: auth-postgres
@@ -62,9 +68,24 @@ services:
     ports:
       - "3100:$POSTGRES_PORT"
     volumes:
-      - ./.db/postgres/date:/var/lib/postgresql/data
+      - ./.db/postgres/data/auth:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
-      interval: 5s
+      interval: 2s
+      timeout: 5s
+      retries: 5
+
+  users-postgres:
+    container_name: users-postgres
+    image: postgres
+    env_file:
+      - .env
+    ports:
+      - "3200:$POSTGRES_PORT"
+    volumes:
+      - ./.db/postgres/data/users:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 2s
       timeout: 5s
       retries: 5
