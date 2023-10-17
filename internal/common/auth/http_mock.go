@@ -11,7 +11,7 @@ import (
 
 func HttpMockMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var claims jwt.MapClaims
+		var claims JWTClaims
 		token, err := request.ParseFromRequest(
 			r,
 			request.AuthorizationHeaderExtractor,
@@ -32,8 +32,7 @@ func HttpMockMiddleware(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), userContextKey, User{
-			Id:   claims["user_id"].(int64),
-			Role: claims["role"].(string),
+			Id: claims.UserId,
 		})
 		r = r.WithContext(ctx)
 

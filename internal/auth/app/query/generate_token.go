@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/OrIX219/SomethingSocial/internal/common/auth"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -18,18 +19,13 @@ func NewGenerateTokenHandler() GenerateTokenHandler {
 }
 
 func (h GenerateTokenHandler) Handle(ctx context.Context, query GenerateToken) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
-		jwt.StandardClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &auth.JWTClaims{
+		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		query.UserId,
+		UserId: query.UserId,
 	})
 
 	return token.SignedString([]byte("mock_secret"))
-}
-
-type tokenClaims struct {
-	jwt.StandardClaims
-	UserId int64 `json:"user_id"`
 }

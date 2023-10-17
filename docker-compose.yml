@@ -10,7 +10,7 @@ services:
       - ./.go-cache:/go-cache
     working_dir: /internal/auth
     ports:
-      - "127.0.0.1:3000:$PORT"
+      - "3000:$PORT"
     env_file:
       - .env
     environment:
@@ -25,7 +25,7 @@ services:
       - ./.go-cache:/go-cache
     working_dir: /internal/users
     ports:
-      - "127.0.0.1:3001:$PORT"
+      - "3001:$PORT"
     env_file:
       - .env
     environment:
@@ -41,7 +41,7 @@ services:
       - ./.go-cache:/go-cache
     working_dir: /internal/users
     ports:
-      - "127.0.0.1:3010:$PORT"
+      - "3010:$PORT"
     env_file:
       - .env
     environment:

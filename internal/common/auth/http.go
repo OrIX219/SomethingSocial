@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/OrIX219/SomethingSocial/internal/common/errors"
+	"github.com/dgrijalva/jwt-go"
 )
 
 type User struct {
@@ -29,4 +30,9 @@ func UserFromCtx(ctx context.Context) (User, error) {
 	}
 
 	return User{}, NoUserInContextError
+}
+
+type JWTClaims struct {
+	jwt.StandardClaims
+	UserId int64 `json:"user_id"`
 }
