@@ -2,6 +2,7 @@ version: '3.8'
 name: 'somethingsocial'
 services:
   auth-http:
+    container_name: auth-http
     build:
       context: docker
     volumes:
@@ -10,13 +11,17 @@ services:
       - ./.go-cache:/go-cache
     working_dir: /internal/auth
     ports:
-      - "3000:$PORT"
+      - "3001:$PORT"
     env_file:
       - .env
     environment:
       GOCACHE: /go-cache
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
 
   users-http:
+    container_name: users-http
     build:
       context: docker
     volumes:
@@ -25,7 +30,7 @@ services:
       - ./.go-cache:/go-cache
     working_dir: /internal/users
     ports:
-      - "3001:$PORT"
+      - "3002:$PORT"
     env_file:
       - .env
     environment:
@@ -33,6 +38,7 @@ services:
       GOCACHE: /go-cache
 
   users-grpc:
+    container_name: users-grpc
     build:
       context: docker
     volumes:
@@ -41,9 +47,24 @@ services:
       - ./.go-cache:/go-cache
     working_dir: /internal/users
     ports:
-      - "3010:$PORT"
+      - "3020:$PORT"
     env_file:
       - .env
     environment:
       SERVER_TYPE: grpc
       GOCACHE: /go-cache
+
+  auth-postgres:
+    container_name: auth-postgres
+    image: postgres
+    env_file:
+      - .env
+    ports:
+      - "3100:$POSTGRES_PORT"
+    volumes:
+      - ./.db/postgres/date:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
