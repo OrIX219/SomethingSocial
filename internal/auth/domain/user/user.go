@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	"os"
 )
 
 type User struct {
@@ -64,5 +65,5 @@ func validateUserData(id int64, username, password string) error {
 func generatePasswordHash(password string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))
-	return fmt.Sprintf("%x", hash.Sum([]byte("mock_salt")))
+	return fmt.Sprintf("%x", hash.Sum([]byte(os.Getenv("AUTH_SALT"))))
 }

@@ -2,6 +2,8 @@ package query
 
 import (
 	"context"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/OrIX219/SomethingSocial/internal/common/auth"
@@ -27,5 +29,9 @@ func (h GenerateTokenHandler) Handle(ctx context.Context, query GenerateToken) (
 		UserId: query.UserId,
 	})
 
-	return token.SignedString([]byte("mock_secret"))
+	if mock, _ := strconv.ParseBool(os.Getenv("MOCK_AUTH")); mock {
+		return token.SignedString([]byte("mock_secret"))
+	} else {
+		return token.SignedString([]byte(os.Getenv("AUTH_SECRET")))
+	}
 }

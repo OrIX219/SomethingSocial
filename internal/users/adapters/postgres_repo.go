@@ -143,12 +143,6 @@ func (r *UsersPostgresRepository) GetFollowing(userId int64) ([]*users.User, err
 			return nil, err
 		}
 	}
-	// For some reason err is nil when no rows are returned
-	if len(userModels) == 0 {
-		return nil, users.UserNotFoundError{
-			UserId: userId,
-		}
-	}
 
 	following := make([]*users.User, 0, len(userModels))
 	for i := range userModels {
@@ -176,11 +170,6 @@ func (r *UsersPostgresRepository) GetFollowers(userId int64) ([]*users.User, err
 			}
 		default:
 			return nil, err
-		}
-	}
-	if len(userModels) == 0 {
-		return nil, users.UserNotFoundError{
-			UserId: userId,
 		}
 	}
 

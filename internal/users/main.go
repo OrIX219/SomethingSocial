@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/OrIX219/SomethingSocial/internal/common/auth"
@@ -23,9 +24,15 @@ func main() {
 	serverType := strings.ToLower(os.Getenv("SERVER_TYPE"))
 	switch serverType {
 	case "http":
+		var authMiddleware func(http.Handler) http.Handler
+		if mock, _ := strconv.ParseBool(os.Getenv("MOCK_AUTH")); mock {
+			authMiddleware = auth.HttpMockMiddleware
+		} else {
+			authMiddleware = auth.HttpAuthMiddleware
+		}
 		server.RunHTTPServer(func(router chi.Router) http.Handler {
 			return ports.HandlerFromMux(ports.NewHttpServer(app), router)
-		}, auth.HttpMockMiddleware)
+		}, authMiddleware)
 	case "grpc":
 		server.RunGRPCServer(func(server *grpc.Server) {
 			srv := ports.NewGrpcServer(app)
