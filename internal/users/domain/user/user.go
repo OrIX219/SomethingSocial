@@ -15,7 +15,7 @@ type User struct {
 }
 
 func NewUser(id int64, name string) (*User, error) {
-	if err := validateUserData(id, name, time.Now(), time.Now(), 0); err != nil {
+	if err := validateUserData(id, name); err != nil {
 		return nil, err
 	}
 
@@ -59,36 +59,25 @@ func (u *User) UpdateKarma(delta int64) {
 
 func UnmarshalFromRepository(id int64, name string,
 	regDate, lastLogin time.Time, karma, postsCount int64) (*User, error) {
-	if err := validateUserData(id, name, regDate, lastLogin, postsCount); err != nil {
+	user, err := NewUser(id, name)
+	if err != nil {
 		return nil, err
 	}
 
-	return &User{
-		id:               id,
-		name:             name,
-		registrationDate: regDate,
-		lastLogin:        lastLogin,
-		karma:            karma,
-		postsCount:       postsCount,
-	}, nil
+	user.registrationDate = regDate
+	user.lastLogin = lastLogin
+	user.karma = karma
+	user.postsCount = postsCount
+
+	return user, nil
 }
 
-func validateUserData(id int64, name string,
-	regDate, lastLogin time.Time, postsCount int64) error {
+func validateUserData(id int64, name string) error {
 	if id < 0 {
 		return errors.New("Invalid user id")
 	}
 	if name == "" {
 		return errors.New("Empty user name")
-	}
-	if regDate.After(time.Now()) {
-		return errors.New("Invalid registration date")
-	}
-	if lastLogin.After(time.Now()) {
-		return errors.New("Invalid last login")
-	}
-	if postsCount < 0 {
-		return errors.New("Invalid posts count")
 	}
 
 	return nil

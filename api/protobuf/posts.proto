@@ -4,14 +4,12 @@ package users;
 
 option go_package = "github.com/OrIX219/SomethingSocial/internal/posts";
 
-import "google/protobuf/empty.proto";
-
 service PostsService {
   rpc GetUserPostsCount(GetUserPostsCountRequest) returns (GetUserPostsCountResponse) {}
 }
 
 message GetUserPostsCountRequest {
-  string user_id = 1;
+  int64 user_id = 1;
 }
 
 message GetUserPostsCountResponse {

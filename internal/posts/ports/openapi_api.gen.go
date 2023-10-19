@@ -32,10 +32,10 @@ type ServerInterface interface {
 	GetPost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
 
 	// (POST /posts/{postId}/downvote)
-	PostPostsPostIdDownvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
+	DownvotePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
 
 	// (POST /posts/{postId}/upvote)
-	PostPostsPostIdUpvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
+	UpvotePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -68,12 +68,12 @@ func (_ Unimplemented) GetPost(w http.ResponseWriter, r *http.Request, postId op
 }
 
 // (POST /posts/{postId}/downvote)
-func (_ Unimplemented) PostPostsPostIdDownvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
+func (_ Unimplemented) DownvotePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // (POST /posts/{postId}/upvote)
-func (_ Unimplemented) PostPostsPostIdUpvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
+func (_ Unimplemented) UpvotePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -246,8 +246,8 @@ func (siw *ServerInterfaceWrapper) GetPost(w http.ResponseWriter, r *http.Reques
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PostPostsPostIdDownvote operation middleware
-func (siw *ServerInterfaceWrapper) PostPostsPostIdDownvote(w http.ResponseWriter, r *http.Request) {
+// DownvotePost operation middleware
+func (siw *ServerInterfaceWrapper) DownvotePost(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -264,7 +264,7 @@ func (siw *ServerInterfaceWrapper) PostPostsPostIdDownvote(w http.ResponseWriter
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostPostsPostIdDownvote(w, r, postId)
+		siw.Handler.DownvotePost(w, r, postId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -274,8 +274,8 @@ func (siw *ServerInterfaceWrapper) PostPostsPostIdDownvote(w http.ResponseWriter
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PostPostsPostIdUpvote operation middleware
-func (siw *ServerInterfaceWrapper) PostPostsPostIdUpvote(w http.ResponseWriter, r *http.Request) {
+// UpvotePost operation middleware
+func (siw *ServerInterfaceWrapper) UpvotePost(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -292,7 +292,7 @@ func (siw *ServerInterfaceWrapper) PostPostsPostIdUpvote(w http.ResponseWriter, 
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostPostsPostIdUpvote(w, r, postId)
+		siw.Handler.UpvotePost(w, r, postId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -431,10 +431,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/posts/{postId}", wrapper.GetPost)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/posts/{postId}/downvote", wrapper.PostPostsPostIdDownvote)
+		r.Post(options.BaseURL+"/posts/{postId}/downvote", wrapper.DownvotePost)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/posts/{postId}/upvote", wrapper.PostPostsPostIdUpvote)
+		r.Post(options.BaseURL+"/posts/{postId}/upvote", wrapper.UpvotePost)
 	})
 
 	return r

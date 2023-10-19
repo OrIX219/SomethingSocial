@@ -4,6 +4,8 @@ package users;
 
 option go_package = "github.com/OrIX219/SomethingSocial/internal/users";
 
+import "google/protobuf/empty.proto";
+
 service UsersService {
   rpc AddUser(AddUserRequest) returns (google.protobuf.Empty) {}
   rpc GetKarma(GetKarmaRequest) returns (GetKarmaResponse) {}

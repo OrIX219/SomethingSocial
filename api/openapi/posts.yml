@@ -145,6 +145,7 @@ paths:
           
   /posts/{postId}/upvote:
     post:
+      operationId: upvotePost
       tags: [Posts]
       parameters:
         - in: path
@@ -165,6 +166,7 @@ paths:
           
   /posts/{postId}/downvote:
     post:
+      operationId: downvotePost
       tags: [Posts]
       parameters:
         - in: path
@@ -196,11 +198,13 @@ components:
           type: string
         karma:
           type: integer
+          format: int64
         postDate:
           type: string
           format: date-time
         author:
-          type: string
+          type: integer
+          format: int64
           
     PostArray:
       type: array
@@ -242,10 +246,6 @@ components:
             
     PostCreated:
       description: Post created
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Status'
       headers:
         Location:
           description: Newly created post's location

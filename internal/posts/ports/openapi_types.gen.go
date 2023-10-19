@@ -26,10 +26,10 @@ type Error struct {
 
 // Post defines model for Post.
 type Post struct {
-	Author   string             `json:"author"`
+	Author   int64              `json:"author"`
 	Content  string             `json:"content"`
 	Id       openapi_types.UUID `json:"id"`
-	Karma    int                `json:"karma"`
+	Karma    int64              `json:"karma"`
 	PostDate time.Time          `json:"postDate"`
 }
 
@@ -40,9 +40,6 @@ type PostArray = []Post
 type Status struct {
 	Status string `json:"status"`
 }
-
-// PostCreated defines model for PostCreated.
-type PostCreated = Status
 
 // Posts defines model for Posts.
 type Posts = PostArray

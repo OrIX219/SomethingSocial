@@ -14,12 +14,11 @@ type User struct {
 }
 
 func NewUser(username, password string) (*User, error) {
-	if err := validateUserData(0, username, password); err != nil {
+	if err := validateUserData(username, password); err != nil {
 		return nil, err
 	}
 
 	return &User{
-		id:       0,
 		username: username,
 		password: generatePasswordHash(password),
 	}, nil
@@ -38,7 +37,7 @@ func (u User) Password() string {
 }
 
 func UnmarshalFromRepository(id int64, username, password string) (*User, error) {
-	if err := validateUserData(id, username, password); err != nil {
+	if err := validateUserData(username, password); err != nil {
 		return nil, err
 	}
 
@@ -49,10 +48,7 @@ func UnmarshalFromRepository(id int64, username, password string) (*User, error)
 	}, nil
 }
 
-func validateUserData(id int64, username, password string) error {
-	if id < 0 {
-		return errors.New("Invalid user id")
-	}
+func validateUserData(username, password string) error {
 	if username == "" {
 		return errors.New("Empty user username")
 	}
