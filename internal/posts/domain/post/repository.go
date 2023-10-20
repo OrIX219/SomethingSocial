@@ -9,18 +9,20 @@ type Repository interface {
 	GetPost(postId string) (*Post, error)
 	DeletePost(postId string, userId int64) error
 	UpdatePost(postId string, updateFn func(post *Post) (*Post, error)) error
+	UpvotePost(postId string, userId int64) error
+	DownvotePost(postId string, userId int64) error
 	GetUpvoters(postId string) ([]int64, error)
 	GetDownvoters(postId string) ([]int64, error)
 	GetAuthor(postId string) (int64, error)
 	GetPostsCount(userId int64) (int64, error)
-	GetFeed(userId int64) ([]*Post, error)
-	GetPosts(filter PostFilter) ([]*Post, error)
+	GetFeed(authors []int64) ([]*Post, error)
+	GetPosts(userId int64, filter PostFilter) ([]*Post, error)
 }
 
 type PostNotFoundError struct {
-	id string
+	Id string
 }
 
 func (e PostNotFoundError) Error() string {
-	return fmt.Sprintf("Post %s not found", e.id)
+	return fmt.Sprintf("Post %s not found", e.Id)
 }

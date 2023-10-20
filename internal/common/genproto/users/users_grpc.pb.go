@@ -26,6 +26,7 @@ type UsersServiceClient interface {
 	AddUser(ctx context.Context, in *AddUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetKarma(ctx context.Context, in *GetKarmaRequest, opts ...grpc.CallOption) (*GetKarmaResponse, error)
 	UpdateKarma(ctx context.Context, in *UpdateKarmaRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*GetFollowingResponse, error)
 }
 
 type usersServiceClient struct {
@@ -63,6 +64,15 @@ func (c *usersServiceClient) UpdateKarma(ctx context.Context, in *UpdateKarmaReq
 	return out, nil
 }
 
+func (c *usersServiceClient) GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*GetFollowingResponse, error) {
+	out := new(GetFollowingResponse)
+	err := c.cc.Invoke(ctx, "/users.UsersService/GetFollowing", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServiceServer is the server API for UsersService service.
 // All implementations should embed UnimplementedUsersServiceServer
 // for forward compatibility
@@ -70,6 +80,7 @@ type UsersServiceServer interface {
 	AddUser(context.Context, *AddUserRequest) (*emptypb.Empty, error)
 	GetKarma(context.Context, *GetKarmaRequest) (*GetKarmaResponse, error)
 	UpdateKarma(context.Context, *UpdateKarmaRequest) (*emptypb.Empty, error)
+	GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error)
 }
 
 // UnimplementedUsersServiceServer should be embedded to have forward compatible implementations.
@@ -84,6 +95,9 @@ func (UnimplementedUsersServiceServer) GetKarma(context.Context, *GetKarmaReques
 }
 func (UnimplementedUsersServiceServer) UpdateKarma(context.Context, *UpdateKarmaRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateKarma not implemented")
+}
+func (UnimplementedUsersServiceServer) GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowing not implemented")
 }
 
 // UnsafeUsersServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -151,6 +165,24 @@ func _UsersService_UpdateKarma_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UsersService_GetFollowing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServiceServer).GetFollowing(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.UsersService/GetFollowing",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServiceServer).GetFollowing(ctx, req.(*GetFollowingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UsersService_ServiceDesc is the grpc.ServiceDesc for UsersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -169,6 +201,10 @@ var UsersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateKarma",
 			Handler:    _UsersService_UpdateKarma_Handler,
+		},
+		{
+			MethodName: "GetFollowing",
+			Handler:    _UsersService_GetFollowing_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

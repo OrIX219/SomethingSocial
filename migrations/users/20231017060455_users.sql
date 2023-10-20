@@ -26,8 +26,8 @@ CREATE TABLE following
 -- +goose StatementBegin
 SELECT 'down SQL query';
 
-DROP TABLE following
+DROP TABLE following;
 
-DROP TABLE users
+DROP TABLE users;
 
 -- +goose StatementEnd

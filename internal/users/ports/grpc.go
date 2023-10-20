@@ -59,3 +59,22 @@ func (g GrpcServer) UpdateKarma(ctx context.Context,
 
 	return &empty.Empty{}, nil
 }
+
+func (g GrpcServer) GetFollowing(ctx context.Context,
+	request *users.GetFollowingRequest) (*users.GetFollowingResponse, error) {
+	following, err := g.app.Queries.GetFollowing.Handle(ctx, query.GetFollowing{
+		UserId: request.UserId,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	response := users.GetFollowingResponse{
+		Users: make([]int64, len(following)),
+	}
+	for i := range following {
+		response.Users[i] = following[i].Id()
+	}
+
+	return &response, nil
+}

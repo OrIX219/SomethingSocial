@@ -28,6 +28,12 @@ func NewHttpServer(app app.Application) HttpServer {
 
 func (h HttpServer) GetPosts(w http.ResponseWriter, r *http.Request,
 	params GetPostsParams) {
+	currentUser, err := auth.UserFromCtx(r.Context())
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
 	filter := posts.PostFilter{
 		Author:   params.Author,
 		Limit:    params.Limit,
@@ -37,6 +43,7 @@ func (h HttpServer) GetPosts(w http.ResponseWriter, r *http.Request,
 		Vote:     params.Vote,
 	}
 	posts, err := h.app.Queries.GetPosts.Handle(r.Context(), query.GetPosts{
+		UserId: currentUser.Id,
 		Filter: filter,
 	})
 	if err != nil {
@@ -150,14 +157,7 @@ func (h HttpServer) DownvotePost(w http.ResponseWriter, r *http.Request,
 		UserId: currentUser.Id,
 	})
 	if err != nil {
-		switch err.(type) {
-		case command.AlreadyDownvotedError:
-			render.Respond(w, r, Status{
-				Status: "already downvoted",
-			})
-		default:
-			httperr.RespondWithSlugError(err, w, r)
-		}
+		httperr.RespondWithSlugError(err, w, r)
 		return
 	}
 
@@ -179,14 +179,7 @@ func (h HttpServer) UpvotePost(w http.ResponseWriter, r *http.Request,
 		UserId: currentUser.Id,
 	})
 	if err != nil {
-		switch err.(type) {
-		case command.AlreadyUpvotedError:
-			render.Respond(w, r, Status{
-				Status: "already upvoted",
-			})
-		default:
-			httperr.RespondWithSlugError(err, w, r)
-		}
+		httperr.RespondWithSlugError(err, w, r)
 		return
 	}
 
@@ -213,7 +206,7 @@ func responsePostArray(posts []*posts.Post) PostArray {
 }
 
 func marshalPost(post *posts.Post) Post {
-	id, _ := uuid.FromBytes([]byte(post.Id()))
+	id, _ := uuid.Parse(post.Id())
 	return Post{
 		Id:       id,
 		Content:  post.Content(),

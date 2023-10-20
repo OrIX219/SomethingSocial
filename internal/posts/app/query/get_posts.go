@@ -7,6 +7,7 @@ import (
 )
 
 type GetPosts struct {
+	UserId int64
 	Filter posts.PostFilter
 }
 
@@ -26,5 +27,5 @@ func NewGetPostsHandler(repo posts.Repository) GetPostsHandler {
 
 func (h GetPostsHandler) Handle(ctx context.Context,
 	query GetPosts) ([]*posts.Post, error) {
-	return h.repo.GetPosts(query.Filter)
+	return h.repo.GetPosts(query.UserId, query.Filter)
 }

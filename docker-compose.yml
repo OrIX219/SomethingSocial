@@ -60,6 +60,46 @@ services:
       users-postgres:
         condition: service_healthy
 
+  posts-http:
+    container_name: posts-http
+    build:
+      context: docker
+    volumes:
+      - ./internal:/internal
+      - ~/go/pkg:/go/pkg
+      - ./.go-cache:/go-cache
+    working_dir: /internal/posts
+    ports:
+      - "3003:$PORT"
+    env_file:
+      - .env
+    environment:
+      SERVER_TYPE: http
+      GOCACHE: /go-cache
+    depends_on:
+      users-postgres:
+        condition: service_healthy
+
+  posts-grpc:
+    container_name: posts-grpc
+    build:
+      context: docker
+    volumes:
+      - ./internal:/internal
+      - ~/go/pkg:/go/pkg
+      - ./.go-cache:/go-cache
+    working_dir: /internal/posts
+    ports:
+      - "3030:$PORT"
+    env_file:
+      - .env
+    environment:
+      SERVER_TYPE: grpc
+      GOCACHE: /go-cache
+    depends_on:
+      users-postgres:
+        condition: service_healthy
+
   auth-postgres:
     container_name: auth-postgres
     image: postgres
@@ -73,7 +113,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 2s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   users-postgres:
     container_name: users-postgres
@@ -88,4 +128,19 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 2s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  posts-postgres:
+    container_name: posts-postgres
+    image: postgres
+    env_file:
+      - .env
+    ports:
+      - "3300:$POSTGRES_PORT"
+    volumes:
+      - ./.db/postgres/data/posts:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 2s
+      timeout: 5s
+      retries: 10

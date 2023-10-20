@@ -19,7 +19,7 @@ import (
 func main() {
 	logs.Init()
 
-	app := service.NewApplication()
+	app, _ := service.NewApplication()
 
 	serverType := strings.ToLower(os.Getenv("SERVER_TYPE"))
 	switch serverType {

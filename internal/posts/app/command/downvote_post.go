@@ -2,11 +2,8 @@ package command
 
 import (
 	"context"
-	"fmt"
-	"sort"
 
 	posts "github.com/OrIX219/SomethingSocial/internal/posts/domain/post"
-	"golang.org/x/exp/slices"
 )
 
 type DownvotePost struct {
@@ -35,25 +32,7 @@ func NewDownvotePostHandler(repo posts.Repository,
 }
 
 func (h DownvotePostHandler) Handle(ctx context.Context, cmd DownvotePost) error {
-	downvoters, err := h.repo.GetDownvoters(cmd.PostId)
-	if err != nil {
-		return err
-	}
-
-	sort.Slice(downvoters, func(i, j int) bool {
-		return downvoters[i] < downvoters[j]
-	})
-	_, found := slices.BinarySearch[int64](downvoters, cmd.UserId)
-	if found {
-		return AlreadyDownvotedError{
-			PostId: cmd.PostId,
-		}
-	}
-
-	err = h.repo.UpdatePost(cmd.PostId, func(post *posts.Post) (*posts.Post, error) {
-		post.Downvote()
-		return post, nil
-	})
+	err := h.repo.DownvotePost(cmd.PostId, cmd.UserId)
 	if err != nil {
 		return err
 	}
@@ -63,12 +42,4 @@ func (h DownvotePostHandler) Handle(ctx context.Context, cmd DownvotePost) error
 		return err
 	}
 	return h.usersService.UpdateKarma(ctx, author, -1)
-}
-
-type AlreadyDownvotedError struct {
-	PostId string
-}
-
-func (e AlreadyDownvotedError) Error() string {
-	return fmt.Sprintf("Post %s already downvoted", e.PostId)
 }

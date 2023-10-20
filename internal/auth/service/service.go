@@ -29,7 +29,8 @@ func NewApplication() (app.Application, func()) {
 	}
 }
 
-func newApplication(repo auth.Repository, usersService command.UsersService) app.Application {
+func newApplication(repo auth.Repository,
+	usersService command.UsersService) app.Application {
 	return app.Application{
 		Commands: app.Commands{
 			AddUser: command.NewAddUserHandler(repo, usersService),

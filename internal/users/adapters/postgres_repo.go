@@ -52,20 +52,22 @@ func (r *UsersPostgresRepository) AddUser(user *users.User) error {
 	_, err := r.db.Exec(query, userModel.Id, userModel.Name,
 		userModel.RegistrationDate, userModel.LastLogin,
 		userModel.Karma, userModel.PostsCount)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (r *UsersPostgresRepository) GetUser(userId int64) (*users.User, error) {
 	var userModel UserModel
 	query := fmt.Sprintf(`SELECT * FROM %s WHERE id = $1`, usersTable)
 	err := r.db.Get(&userModel, query, userId)
-	if err == sql.ErrNoRows {
-		return nil, users.UserNotFoundError{
-			UserId: userId,
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, users.UserNotFoundError{
+				UserId: userId,
+			}
+		default:
+			return nil, err
 		}
 	}
 
@@ -100,7 +102,10 @@ func (r *UsersPostgresRepository) UpdateUser(userId int64,
 	query := fmt.Sprintf(`UPDATE %s SET name=$1, last_login=$2, karma=$3,
 		posts_count=$4 WHERE id=$5`, usersTable)
 	res, err := r.db.Exec(query, updatedUser.Name(), updatedUser.LastLogin(),
-		updatedUser.Karma(), updatedUser.PostsCount())
+		updatedUser.Karma(), updatedUser.PostsCount(), userId)
+	if err != nil {
+		return err
+	}
 
 	if rows, _ := res.RowsAffected(); rows == 0 {
 		return users.UserNotFoundError{
@@ -108,7 +113,7 @@ func (r *UsersPostgresRepository) UpdateUser(userId int64,
 		}
 	}
 
-	return err
+	return nil
 }
 
 func (r *UsersPostgresRepository) FollowUser(userId, targetId int64) error {
