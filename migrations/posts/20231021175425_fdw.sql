@@ -25,11 +25,19 @@ CREATE FOREIGN TABLE users (
 )
 SERVER users_server;
 
+CREATE FOREIGN TABLE following (
+    follower_id int,
+    follow_id int
+)
+SERVER users_server;
+
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 SELECT 'down SQL query';
+
+DROP FOREIGN TABLE following;
 
 DROP FOREIGN TABLE users;
 

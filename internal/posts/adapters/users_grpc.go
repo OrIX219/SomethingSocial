@@ -24,11 +24,3 @@ func (s UsersGrpc) UpdateKarma(ctx context.Context, userId, delta int64) error {
 
 	return err
 }
-
-func (s UsersGrpc) GetFollowing(ctx context.Context, userId int64) ([]int64, error) {
-	res, err := s.client.GetFollowing(ctx, &users.GetFollowingRequest{
-		UserId: userId,
-	})
-
-	return res.Users, err
-}

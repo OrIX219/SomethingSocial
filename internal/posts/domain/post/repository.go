@@ -17,7 +17,7 @@ type Repository interface {
 	GetDownvoters(postId string) ([]int64, error)
 	GetAuthor(postId string) (int64, error)
 	GetPostsCount(userId int64) (int64, error)
-	GetFeed(authors []int64) ([]*Post, error)
+	GetFeed(userId int64) ([]*Post, error)
 	GetPosts(userId int64, filter PostFilter) ([]*Post, error)
 }
 

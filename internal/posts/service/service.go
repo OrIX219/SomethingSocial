@@ -45,7 +45,7 @@ func newApplication(repo posts.Repository,
 			GetPost:       query.NewGetPostHandler(repo),
 			GetPosts:      query.NewGetPostsHandler(repo),
 			GetPostsCount: query.NewGetPostsCountHandler(repo),
-			GetFeed:       query.NewGetFeedHandler(repo, usersService),
+			GetFeed:       query.NewGetFeedHandler(repo),
 		},
 	}
 }

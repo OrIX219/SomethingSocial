@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	postsTable        = "posts"
-	upvotesTable      = "upvotes"
-	downvotesTable    = "downvotes"
-	usersForeignTable = "users"
+	postsTable            = "posts"
+	upvotesTable          = "upvotes"
+	downvotesTable        = "downvotes"
+	usersForeignTable     = "users"
+	followingForeignTable = "following"
 )
 
 type PostModel struct {
@@ -277,21 +278,12 @@ func (r *PostsPostgresRepository) GetPostsCount(userId int64) (int64, error) {
 	return count, err
 }
 
-func (r *PostsPostgresRepository) GetFeed(authors []int64) ([]*posts.Post, error) {
-	if len(authors) == 0 {
-		return []*posts.Post{}, nil
-	}
-
-	setValues := make([]string, 0, len(authors))
-	for i := range authors {
-		setValues = append(setValues, fmt.Sprintf("(%d)", authors[i]))
-	}
-	tempTable := fmt.Sprintf("(values %s)", strings.Join(setValues, ","))
-
+func (r *PostsPostgresRepository) GetFeed(userId int64) ([]*posts.Post, error) {
 	var postModels []PostModel
 	query := fmt.Sprintf(`SELECT p.* FROM %s p
-		JOIN %s AS t(id) ON p.author = t.id`, postsTable, tempTable)
-	err := r.db.Select(&postModels, query)
+		INNER JOIN %s f ON p.author = f.follow_id WHERE f.follower_id=$1`,
+		postsTable, followingForeignTable)
+	err := r.db.Select(&postModels, query, userId)
 	if err != nil {
 		return nil, err
 	}

@@ -11,30 +11,20 @@ type GetFeed struct {
 }
 
 type GetFeedHandler struct {
-	repo         posts.Repository
-	usersService UsersService
+	repo posts.Repository
 }
 
-func NewGetFeedHandler(repo posts.Repository, usersService UsersService) GetFeedHandler {
+func NewGetFeedHandler(repo posts.Repository) GetFeedHandler {
 	if repo == nil {
 		panic("GetFeedHandler nil repo")
 	}
-	if usersService == nil {
-		panic("GetFeedHandler nil usersService")
-	}
 
 	return GetFeedHandler{
-		repo:         repo,
-		usersService: usersService,
+		repo: repo,
 	}
 }
 
 func (h GetFeedHandler) Handle(ctx context.Context,
 	query GetFeed) ([]*posts.Post, error) {
-	following, err := h.usersService.GetFollowing(ctx, query.UserId)
-	if err != nil {
-		return nil, err
-	}
-
-	return h.repo.GetFeed(following)
+	return h.repo.GetFeed(query.UserId)
 }
