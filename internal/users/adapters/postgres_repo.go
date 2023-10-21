@@ -135,10 +135,9 @@ func (r *UsersPostgresRepository) UnfollowUser(userId, targetId int64) error {
 
 func (r *UsersPostgresRepository) GetFollowing(userId int64) ([]*users.User, error) {
 	var userModels []UserModel
-	query := fmt.Sprintf(`SELECT u.id, u.name, u.registration_date,
-		u.last_login, u.karma, u.posts_count FROM %s u
-		INNER JOIN %s f ON u.id=f.follow_id
-		WHERE f.follower_id=$1`, usersTable, followingTable)
+	query := fmt.Sprintf(`SELECT u.* FROM %s u
+		INNER JOIN %s f ON u.id=f.follow_id	WHERE f.follower_id=$1`,
+		usersTable, followingTable)
 	err := r.db.Select(&userModels, query, userId)
 	if err != nil {
 		switch err {
@@ -164,8 +163,7 @@ func (r *UsersPostgresRepository) GetFollowing(userId int64) ([]*users.User, err
 
 func (r *UsersPostgresRepository) GetFollowers(userId int64) ([]*users.User, error) {
 	var userModels []UserModel
-	query := fmt.Sprintf(`SELECT u.id, u.name, u.registration_date,
-		u.last_login, u.karma, u.posts_count FROM %s u
+	query := fmt.Sprintf(`SELECT u.* FROM %s u
 		INNER JOIN %s f ON u.id=f.follower_id WHERE f.follow_id=$1`,
 		usersTable, followingTable)
 	err := r.db.Select(&userModels, query, userId)
