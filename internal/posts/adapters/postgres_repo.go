@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	postsTable     = "posts"
-	upvotesTable   = "upvotes"
-	downvotesTable = "downvotes"
+	postsTable        = "posts"
+	upvotesTable      = "upvotes"
+	downvotesTable    = "downvotes"
+	usersForeignTable = "users"
 )
 
 type PostModel struct {
@@ -75,8 +76,9 @@ func (r *PostsPostgresRepository) GetPost(postId string) (*posts.Post, error) {
 }
 
 func (r *PostsPostgresRepository) DeletePost(postId string, userId int64) error {
-	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1 AND author = $2`,
-		postsTable)
+	query := fmt.Sprintf(`DELETE FROM %s p USING %s u1, %[2]s u2 WHERE p.id = $1 AND
+		(p.author = $2 OR u1.id=p.author AND u1.role < u2.role AND u2.id=$2)`,
+		postsTable, usersForeignTable)
 	res, err := r.db.Exec(query, postId, userId)
 	if err != nil {
 		return err
@@ -92,8 +94,10 @@ func (r *PostsPostgresRepository) DeletePost(postId string, userId int64) error 
 
 func (r *PostsPostgresRepository) EditPost(userId int64,
 	editedPost *posts.Post) error {
-	query := fmt.Sprintf(`UPDATE %s SET content=$1, edit_date=$2
-		WHERE id=$3 AND author=$4`, postsTable)
+	query := fmt.Sprintf(`UPDATE %s p SET content=$1, edit_date=$2
+		FROM %s u1, %[2]s u2 WHERE p.id=$3 AND 
+		(p.author=$4 OR u1.id=p.author AND u1.role < u2.role AND u2.id=$4)`,
+		postsTable, usersForeignTable)
 	res, err := r.db.Exec(query,
 		editedPost.Content(), editedPost.PostDate(),
 		editedPost.Id(), editedPost.Author())

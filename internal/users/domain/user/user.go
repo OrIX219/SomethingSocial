@@ -12,6 +12,7 @@ type User struct {
 	lastLogin        time.Time
 	karma            int64
 	postsCount       int64
+	role             UserRole
 }
 
 func NewUser(id int64, name string) (*User, error) {
@@ -26,6 +27,7 @@ func NewUser(id int64, name string) (*User, error) {
 		lastLogin:        time.Now(),
 		karma:            0,
 		postsCount:       0,
+		role:             UserRoleUnknown,
 	}, nil
 }
 
@@ -53,12 +55,28 @@ func (u User) PostsCount() int64 {
 	return u.postsCount
 }
 
+func (u User) Role() UserRole {
+	return u.role
+}
+
 func (u *User) UpdateKarma(delta int64) {
 	u.karma += delta
 }
 
-func UnmarshalFromRepository(id int64, name string,
-	regDate, lastLogin time.Time, karma, postsCount int64) (*User, error) {
+func (u *User) Promote() {
+	if u.role < UserRoleAdmin {
+		u.role <<= 1
+	}
+}
+
+func (u *User) Demote() {
+	if u.role > UserRoleUser {
+		u.role >>= 1
+	}
+}
+
+func UnmarshalFromRepository(id int64, name string, regDate, lastLogin time.Time,
+	karma, postsCount int64, role string) (*User, error) {
 	user, err := NewUser(id, name)
 	if err != nil {
 		return nil, err
@@ -68,6 +86,13 @@ func UnmarshalFromRepository(id int64, name string,
 	user.lastLogin = lastLogin
 	user.karma = karma
 	user.postsCount = postsCount
+
+	userRole, err := ParseRole(role)
+	if err != nil {
+		return nil, err
+	}
+
+	user.role = userRole
 
 	return user, nil
 }

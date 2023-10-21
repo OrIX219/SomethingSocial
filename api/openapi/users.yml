@@ -118,7 +118,7 @@ components:
   schemas:
     User:
       type: object
-      required: [id, name, registrationDate, lastLogin, karma, postsCount]
+      required: [id, name, registrationDate, lastLogin, karma, postsCount, role]
       properties:
         id:
           type: integer
@@ -137,6 +137,9 @@ components:
         postsCount:
           type: integer
           format: int64
+        role:
+          type: string
+          enum: [user, moderator, admin]
           
     UserArray:
       type: array

@@ -147,6 +147,16 @@ func responseUserArray(users []*users.User) UserArray {
 }
 
 func marshalUser(user *users.User) User {
+	var role UserRole
+	switch user.Role() {
+	case users.UserRoleUser:
+		role = UserRoleUser
+	case users.UserRoleModerator:
+		role = UserRoleModerator
+	case users.UserRoleAdmin:
+		role = UserRoleAdmin
+	}
+
 	return User{
 		Id:               user.Id(),
 		Name:             user.Name(),
@@ -154,5 +164,6 @@ func marshalUser(user *users.User) User {
 		LastLogin:        user.LastLogin(),
 		Karma:            user.Karma(),
 		PostsCount:       user.PostsCount(),
+		Role:             role,
 	}
 }

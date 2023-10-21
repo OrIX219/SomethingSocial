@@ -22,6 +22,7 @@ type UserModel struct {
 	LastLogin        time.Time `db:"last_login"`
 	Karma            int64     `db:"karma"`
 	PostsCount       int64     `db:"posts_count"`
+	Role             string    `db:"role"`
 }
 
 type UsersPostgresRepository struct {
@@ -100,9 +101,10 @@ func (r *UsersPostgresRepository) UpdateUser(userId int64,
 	}
 
 	query := fmt.Sprintf(`UPDATE %s SET name=$1, last_login=$2, karma=$3,
-		posts_count=$4 WHERE id=$5`, usersTable)
+		posts_count=$4 role=$5 WHERE id=$6`, usersTable)
 	res, err := r.db.Exec(query, updatedUser.Name(), updatedUser.LastLogin(),
-		updatedUser.Karma(), updatedUser.PostsCount(), userId)
+		updatedUser.Karma(), updatedUser.PostsCount(),
+		updatedUser.Role().String(), userId)
 	if err != nil {
 		return err
 	}
@@ -164,8 +166,8 @@ func (r *UsersPostgresRepository) GetFollowers(userId int64) ([]*users.User, err
 	var userModels []UserModel
 	query := fmt.Sprintf(`SELECT u.id, u.name, u.registration_date,
 		u.last_login, u.karma, u.posts_count FROM %s u
-		INNER JOIN %s f ON u.id=f.follower_id
-		WHERE f.follow_id=$1`, usersTable, followingTable)
+		INNER JOIN %s f ON u.id=f.follower_id WHERE f.follow_id=$1`,
+		usersTable, followingTable)
 	err := r.db.Select(&userModels, query, userId)
 	if err != nil {
 		switch err {
@@ -197,10 +199,12 @@ func (r *UsersPostgresRepository) marshalUser(user *users.User) UserModel {
 		LastLogin:        user.LastLogin(),
 		Karma:            user.Karma(),
 		PostsCount:       user.PostsCount(),
+		Role:             user.Role().String(),
 	}
 }
 
 func (r *UsersPostgresRepository) unmarshalUser(user UserModel) (*users.User, error) {
-	return users.UnmarshalFromRepository(user.Id, user.Name,
-		user.RegistrationDate, user.LastLogin, user.Karma, user.PostsCount)
+	return users.UnmarshalFromRepository(
+		user.Id, user.Name, user.RegistrationDate, user.LastLogin,
+		user.Karma, user.PostsCount, user.Role)
 }

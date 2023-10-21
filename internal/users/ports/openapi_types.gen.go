@@ -11,6 +11,13 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for UserRole.
+const (
+	UserRoleAdmin     UserRole = "admin"
+	UserRoleModerator UserRole = "moderator"
+	UserRoleUser      UserRole = "user"
+)
+
 // Error defines model for Error.
 type Error struct {
 	Message string `json:"message"`
@@ -25,7 +32,11 @@ type User struct {
 	Name             string    `json:"name"`
 	PostsCount       int64     `json:"postsCount"`
 	RegistrationDate time.Time `json:"registrationDate"`
+	Role             UserRole  `json:"role"`
 }
+
+// UserRole defines model for User.Role.
+type UserRole string
 
 // UserArray defines model for UserArray.
 type UserArray = []User
