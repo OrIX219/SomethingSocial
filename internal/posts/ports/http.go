@@ -171,6 +171,28 @@ func (h HttpServer) DownvotePost(w http.ResponseWriter, r *http.Request,
 	})
 }
 
+func (h HttpServer) RemoveDownvote(w http.ResponseWriter, r *http.Request,
+	postId openapi_types.UUID) {
+	currentUser, err := auth.UserFromCtx(r.Context())
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	err = h.app.Commands.RemoveDownvote.Handle(r.Context(), command.RemoveDownvote{
+		PostId: postId.String(),
+		UserId: currentUser.Id,
+	})
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	render.Respond(w, r, Status{
+		Status: "ok",
+	})
+}
+
 func (h HttpServer) UpvotePost(w http.ResponseWriter, r *http.Request,
 	postId openapi_types.UUID) {
 	currentUser, err := auth.UserFromCtx(r.Context())
@@ -180,6 +202,28 @@ func (h HttpServer) UpvotePost(w http.ResponseWriter, r *http.Request,
 	}
 
 	err = h.app.Commands.UpvotePost.Handle(r.Context(), command.UpvotePost{
+		PostId: postId.String(),
+		UserId: currentUser.Id,
+	})
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	render.Respond(w, r, Status{
+		Status: "ok",
+	})
+}
+
+func (h HttpServer) RemoveUpvote(w http.ResponseWriter, r *http.Request,
+	postId openapi_types.UUID) {
+	currentUser, err := auth.UserFromCtx(r.Context())
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	err = h.app.Commands.RemoveUpvote.Handle(r.Context(), command.RemoveUpvote{
 		PostId: postId.String(),
 		UserId: currentUser.Id,
 	})

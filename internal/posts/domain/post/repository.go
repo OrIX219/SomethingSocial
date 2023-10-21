@@ -10,7 +10,9 @@ type Repository interface {
 	DeletePost(postId string, userId int64) error
 	UpdatePost(postId string, updateFn func(post *Post) (*Post, error)) error
 	UpvotePost(postId string, userId int64) (int, error)
+	RemoveUpvote(postId string, userId int64) (int, error)
 	DownvotePost(postId string, userId int64) (int, error)
+	RemoveDownvote(postId string, userId int64) (int, error)
 	GetUpvoters(postId string) ([]int64, error)
 	GetDownvoters(postId string) ([]int64, error)
 	GetAuthor(postId string) (int64, error)

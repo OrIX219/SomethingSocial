@@ -11,10 +11,12 @@ type Application struct {
 }
 
 type Commands struct {
-	CreatePost   command.CreatePostHandler
-	DeletePost   command.DeletePostHandler
-	UpvotePost   command.UpvotePostHandler
-	DownvotePost command.DownvotePostHandler
+	CreatePost     command.CreatePostHandler
+	DeletePost     command.DeletePostHandler
+	UpvotePost     command.UpvotePostHandler
+	RemoveUpvote   command.RemoveUpvoteHandler
+	DownvotePost   command.DownvotePostHandler
+	RemoveDownvote command.RemoveDownvoteHandler
 }
 
 type Queries struct {

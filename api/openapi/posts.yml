@@ -163,10 +163,48 @@ paths:
                 $ref: '#/components/schemas/Status'
         default:
           $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: removeUpvote
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Upvote status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
           
   /posts/{postId}/downvote:
     post:
       operationId: downvotePost
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Downvote status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: removeDownvote
       tags: [Posts]
       parameters:
         - in: path

@@ -6,33 +6,33 @@ import (
 	posts "github.com/OrIX219/SomethingSocial/internal/posts/domain/post"
 )
 
-type DownvotePost struct {
+type RemoveUpvote struct {
 	PostId string
 	UserId int64
 }
 
-type DownvotePostHandler struct {
+type RemoveUpvoteHandler struct {
 	repo         posts.Repository
 	usersService UsersService
 }
 
-func NewDownvotePostHandler(repo posts.Repository,
-	usersService UsersService) DownvotePostHandler {
+func NewRemoveUpvoteHandler(repo posts.Repository,
+	usersService UsersService) RemoveUpvoteHandler {
 	if repo == nil {
-		panic("DownvotePostHandler nil repo")
+		panic("RemoveUpvoteHandler nil repo")
 	}
 	if usersService == nil {
-		panic("RemoveDownvoteHandler nil usersService")
+		panic("RemoveUpvoteHandler nil usersService")
 	}
 
-	return DownvotePostHandler{
+	return RemoveUpvoteHandler{
 		repo:         repo,
 		usersService: usersService,
 	}
 }
 
-func (h DownvotePostHandler) Handle(ctx context.Context, cmd DownvotePost) error {
-	karmaDelta, err := h.repo.DownvotePost(cmd.PostId, cmd.UserId)
+func (h RemoveUpvoteHandler) Handle(ctx context.Context, cmd RemoveUpvote) error {
+	karmaDelta, err := h.repo.RemoveUpvote(cmd.PostId, cmd.UserId)
 	if err != nil {
 		return err
 	}
