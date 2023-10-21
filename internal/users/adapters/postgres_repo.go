@@ -119,7 +119,9 @@ func (r *UsersPostgresRepository) UpdateUser(userId int64,
 }
 
 func (r *UsersPostgresRepository) FollowUser(userId, targetId int64) error {
-	query := fmt.Sprintf(`INSERT INTO %s (follower_id, follow_id) VALUES ($1, $2)`, followingTable)
+	query := fmt.Sprintf(`INSERT INTO %s (follower_id, follow_id)
+		VALUES ($1::int, $2::int)	EXCEPT SELECT follower_id, follow_id FROM %[1]s`,
+		followingTable)
 	_, err := r.db.Exec(query, userId, targetId)
 
 	return err
