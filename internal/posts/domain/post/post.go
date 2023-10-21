@@ -6,12 +6,12 @@ import (
 )
 
 type Post struct {
-	id         string
-	content    string
-	postDate   time.Time
-	updateDate *time.Time
-	karma      int64
-	author     int64
+	id       string
+	content  string
+	postDate time.Time
+	editDate *time.Time
+	karma    int64
+	author   int64
 }
 
 func NewPost(id, content string, postDate time.Time, author int64) (*Post, error) {
@@ -20,12 +20,12 @@ func NewPost(id, content string, postDate time.Time, author int64) (*Post, error
 	}
 
 	return &Post{
-		id:         id,
-		content:    content,
-		postDate:   postDate,
-		updateDate: nil,
-		karma:      0,
-		author:     author,
+		id:       id,
+		content:  content,
+		postDate: postDate,
+		editDate: nil,
+		karma:    0,
+		author:   author,
 	}, nil
 }
 
@@ -41,8 +41,8 @@ func (p Post) PostDate() time.Time {
 	return p.postDate
 }
 
-func (p Post) UpdateDate() *time.Time {
-	return p.updateDate
+func (p Post) EditDate() *time.Time {
+	return p.editDate
 }
 
 func (p Post) Karma() int64 {
@@ -62,12 +62,12 @@ func (p *Post) Downvote() {
 }
 
 func UnmarshalFromRepository(id, content string, postDate time.Time,
-	updateDate *time.Time, karma, author int64) (*Post, error) {
+	editDate *time.Time, karma, author int64) (*Post, error) {
 	post, err := NewPost(id, content, postDate, author)
 	if err != nil {
 		return nil, err
 	}
-	post.updateDate = updateDate
+	post.editDate = editDate
 	post.karma = karma
 
 	return post, nil

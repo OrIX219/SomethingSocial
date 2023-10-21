@@ -21,12 +21,12 @@ type Error struct {
 
 // Post defines model for Post.
 type Post struct {
-	Author     int64              `json:"author"`
-	Content    string             `json:"content"`
-	Id         openapi_types.UUID `json:"id"`
-	Karma      int64              `json:"karma"`
-	PostDate   time.Time          `json:"postDate"`
-	UpdateDate *time.Time         `json:"updateDate,omitempty"`
+	Author   int64              `json:"author"`
+	Content  string             `json:"content"`
+	EditDate *time.Time         `json:"editDate,omitempty"`
+	Id       openapi_types.UUID `json:"id"`
+	Karma    int64              `json:"karma"`
+	PostDate time.Time          `json:"postDate"`
 }
 
 // PostArray defines model for PostArray.
@@ -63,5 +63,5 @@ type GetPostsParams struct {
 // CreatePostJSONRequestBody defines body for CreatePost for application/json ContentType.
 type CreatePostJSONRequestBody = PostContent
 
-// UpdatePostJSONRequestBody defines body for UpdatePost for application/json ContentType.
-type UpdatePostJSONRequestBody = PostContent
+// EditPostJSONRequestBody defines body for EditPost for application/json ContentType.
+type EditPostJSONRequestBody = PostContent

@@ -3,7 +3,7 @@
 SELECT 'up SQL query';
 
 ALTER TABLE posts
-    ADD COLUMN update_date timestamptz;
+    ADD COLUMN edit_date timestamptz;
 
 -- +goose StatementEnd
 
@@ -12,6 +12,6 @@ ALTER TABLE posts
 SELECT 'down SQL query';
 
 ALTER TABLE posts
-    DROP COLUMN update_date;
+    DROP COLUMN edit_date;
 
 -- +goose StatementEnd

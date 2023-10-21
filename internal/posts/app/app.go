@@ -13,7 +13,7 @@ type Application struct {
 type Commands struct {
 	CreatePost     command.CreatePostHandler
 	DeletePost     command.DeletePostHandler
-	UpdatePost     command.UpdatePostHandler
+	EditPost       command.EditPostHandler
 	UpvotePost     command.UpvotePostHandler
 	RemoveUpvote   command.RemoveUpvoteHandler
 	DownvotePost   command.DownvotePostHandler

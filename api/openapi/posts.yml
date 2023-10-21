@@ -128,7 +128,7 @@ paths:
         default:
           $ref: '#/components/responses/UnexpectedError'
     put:
-      operationId: updatePost
+      operationId: editPost
       tags: [Posts]
       parameters:
         - in: path
@@ -261,7 +261,7 @@ components:
         postDate:
           type: string
           format: date-time
-        updateDate:
+        editDate:
           type: string
           format: date-time
         author:

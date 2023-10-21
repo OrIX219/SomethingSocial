@@ -87,7 +87,7 @@ func (h HttpServer) CreatePost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (h HttpServer) UpdatePost(w http.ResponseWriter, r *http.Request,
+func (h HttpServer) EditPost(w http.ResponseWriter, r *http.Request,
 	postId openapi_types.UUID) {
 	currentUser, err := auth.UserFromCtx(r.Context())
 	if err != nil {
@@ -105,13 +105,13 @@ func (h HttpServer) UpdatePost(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	cmd := command.UpdatePost{
-		PostId:     postId.String(),
-		Content:    postContent.Content,
-		UpdateDate: time.Now(),
-		Author:     currentUser.Id,
+	cmd := command.EditPost{
+		PostId:   postId.String(),
+		Content:  postContent.Content,
+		EditDate: time.Now(),
+		Author:   currentUser.Id,
 	}
-	err = h.app.Commands.UpdatePost.Handle(r.Context(), cmd)
+	err = h.app.Commands.EditPost.Handle(r.Context(), cmd)
 	if err != nil {
 		switch err.(type) {
 		case posts.PostNotFoundError:
@@ -296,11 +296,11 @@ func responsePostArray(posts []*posts.Post) PostArray {
 func marshalPost(post *posts.Post) Post {
 	id, _ := uuid.Parse(post.Id())
 	return Post{
-		Id:         id,
-		Content:    post.Content(),
-		PostDate:   post.PostDate(),
-		UpdateDate: post.UpdateDate(),
-		Karma:      post.Karma(),
-		Author:     post.Author(),
+		Id:       id,
+		Content:  post.Content(),
+		PostDate: post.PostDate(),
+		EditDate: post.EditDate(),
+		Karma:    post.Karma(),
+		Author:   post.Author(),
 	}
 }

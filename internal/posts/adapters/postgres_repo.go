@@ -18,12 +18,12 @@ const (
 )
 
 type PostModel struct {
-	Id         string     `db:"id"`
-	Content    string     `db:"content"`
-	PostDate   time.Time  `db:"post_date"`
-	UpdateDate *time.Time `db:"update_date"`
-	Karma      int64      `db:"karma"`
-	Author     int64      `db:"author"`
+	Id       string     `db:"id"`
+	Content  string     `db:"content"`
+	PostDate time.Time  `db:"post_date"`
+	EditDate *time.Time `db:"edit_date"`
+	Karma    int64      `db:"karma"`
+	Author   int64      `db:"author"`
 }
 
 type PostsPostgresRepository struct {
@@ -90,19 +90,19 @@ func (r *PostsPostgresRepository) DeletePost(postId string, userId int64) error 
 	return nil
 }
 
-func (r *PostsPostgresRepository) UpdatePost(userId int64,
-	updatedPost *posts.Post) error {
-	query := fmt.Sprintf(`UPDATE %s SET content=$1, update_date=$2
+func (r *PostsPostgresRepository) EditPost(userId int64,
+	editedPost *posts.Post) error {
+	query := fmt.Sprintf(`UPDATE %s SET content=$1, edit_date=$2
 		WHERE id=$3 AND author=$4`, postsTable)
 	res, err := r.db.Exec(query,
-		updatedPost.Content(), updatedPost.PostDate(),
-		updatedPost.Id(), updatedPost.Author())
+		editedPost.Content(), editedPost.PostDate(),
+		editedPost.Id(), editedPost.Author())
 	if err != nil {
 		return err
 	}
 	if rows, _ := res.RowsAffected(); rows == 0 {
 		return posts.PostNotFoundError{
-			Id: updatedPost.Id(),
+			Id: editedPost.Id(),
 		}
 	}
 
@@ -384,16 +384,16 @@ func (r *PostsPostgresRepository) GetPosts(userId int64,
 
 func (r *PostsPostgresRepository) marshalPost(post *posts.Post) PostModel {
 	return PostModel{
-		Id:         post.Id(),
-		Content:    post.Content(),
-		PostDate:   post.PostDate(),
-		UpdateDate: post.UpdateDate(),
-		Karma:      post.Karma(),
-		Author:     post.Author(),
+		Id:       post.Id(),
+		Content:  post.Content(),
+		PostDate: post.PostDate(),
+		EditDate: post.EditDate(),
+		Karma:    post.Karma(),
+		Author:   post.Author(),
 	}
 }
 
 func (r *PostsPostgresRepository) unmarshalPost(post PostModel) (*posts.Post, error) {
 	return posts.UnmarshalFromRepository(post.Id, post.Content, post.PostDate,
-		post.UpdateDate, post.Karma, post.Author)
+		post.EditDate, post.Karma, post.Author)
 }
