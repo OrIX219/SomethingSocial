@@ -32,7 +32,7 @@ func NewUpvotePostHandler(repo posts.Repository,
 }
 
 func (h UpvotePostHandler) Handle(ctx context.Context, cmd UpvotePost) error {
-	err := h.repo.UpvotePost(cmd.PostId, cmd.UserId)
+	karmaDelta, err := h.repo.UpvotePost(cmd.PostId, cmd.UserId)
 	if err != nil {
 		return err
 	}
@@ -42,5 +42,5 @@ func (h UpvotePostHandler) Handle(ctx context.Context, cmd UpvotePost) error {
 		return err
 	}
 
-	return h.usersService.UpdateKarma(ctx, author, 1)
+	return h.usersService.UpdateKarma(ctx, author, int64(karmaDelta))
 }

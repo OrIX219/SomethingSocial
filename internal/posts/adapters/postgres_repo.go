@@ -118,52 +118,70 @@ func (r *PostsPostgresRepository) UpdatePost(postId string,
 	return nil
 }
 
-func (r *PostsPostgresRepository) UpvotePost(postId string, userId int64) error {
+func (r *PostsPostgresRepository) UpvotePost(postId string, userId int64) (int, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback()
+
+	karmaDelta := 0
 
 	removeDownvoterQuery := fmt.Sprintf(`DELETE FROM %s
 		WHERE post_id=$1 AND user_id=$2`, downvotesTable)
-	_, err = tx.Exec(removeDownvoterQuery, postId, userId)
+	res, err := tx.Exec(removeDownvoterQuery, postId, userId)
 	if err != nil {
-		return err
+		return 0, err
+	}
+	if rows, _ := res.RowsAffected(); rows > 0 {
+		karmaDelta++
 	}
 
 	addUpvoterQuery := fmt.Sprintf(`INSERT INTO %s (post_id, user_id) 
-		VALUES ($1::uuid, $2::int) EXCEPT SELECT post_id, user_id FROM %[1]s`, upvotesTable)
-	_, err = tx.Exec(addUpvoterQuery, postId, userId)
+		VALUES ($1::uuid, $2::int) EXCEPT SELECT post_id, user_id FROM %[1]s`,
+		upvotesTable)
+	res, err = tx.Exec(addUpvoterQuery, postId, userId)
 	if err != nil {
-		return err
+		return 0, err
+	}
+	if rows, _ := res.RowsAffected(); rows > 0 {
+		karmaDelta++
 	}
 
-	return tx.Commit()
+	return karmaDelta, tx.Commit()
 }
 
-func (r *PostsPostgresRepository) DownvotePost(postId string, userId int64) error {
+func (r *PostsPostgresRepository) DownvotePost(postId string, userId int64) (int, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback()
 
+	karmaDelta := 0
+
 	removeUpvoterQuery := fmt.Sprintf(`DELETE FROM %s
 		WHERE post_id=$1 AND user_id=$2`, upvotesTable)
-	_, err = tx.Exec(removeUpvoterQuery, postId, userId)
+	res, err := tx.Exec(removeUpvoterQuery, postId, userId)
 	if err != nil {
-		return err
+		return 0, err
+	}
+	if rows, _ := res.RowsAffected(); rows > 0 {
+		karmaDelta--
 	}
 
 	addDownvoterQuery := fmt.Sprintf(`INSERT INTO %s (post_id, user_id) 
-		VALUES ($1::uuid, $2::int) EXCEPT SELECT post_id, user_id FROM %[1]s`, downvotesTable)
-	_, err = tx.Exec(addDownvoterQuery, postId, userId)
+		VALUES ($1::uuid, $2::int) EXCEPT SELECT post_id, user_id FROM %[1]s`,
+		downvotesTable)
+	res, err = tx.Exec(addDownvoterQuery, postId, userId)
 	if err != nil {
-		return err
+		return 0, err
+	}
+	if rows, _ := res.RowsAffected(); rows > 0 {
+		karmaDelta--
 	}
 
-	return tx.Commit()
+	return karmaDelta, tx.Commit()
 }
 
 func (r *PostsPostgresRepository) GetUpvoters(postId string) ([]int64, error) {

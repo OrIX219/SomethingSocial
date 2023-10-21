@@ -32,7 +32,7 @@ func NewDownvotePostHandler(repo posts.Repository,
 }
 
 func (h DownvotePostHandler) Handle(ctx context.Context, cmd DownvotePost) error {
-	err := h.repo.DownvotePost(cmd.PostId, cmd.UserId)
+	karmaDelta, err := h.repo.DownvotePost(cmd.PostId, cmd.UserId)
 	if err != nil {
 		return err
 	}
@@ -41,5 +41,6 @@ func (h DownvotePostHandler) Handle(ctx context.Context, cmd DownvotePost) error
 	if err != nil {
 		return err
 	}
-	return h.usersService.UpdateKarma(ctx, author, -1)
+
+	return h.usersService.UpdateKarma(ctx, author, int64(karmaDelta))
 }
