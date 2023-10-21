@@ -74,11 +74,19 @@ func (r *PostsPostgresRepository) GetPost(postId string) (*posts.Post, error) {
 }
 
 func (r *PostsPostgresRepository) DeletePost(postId string, userId int64) error {
-	query := fmt.Sprintf(`DELETE FROM FROM %s WHERE id = $1 AND author = $2`,
+	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1 AND author = $2`,
 		postsTable)
-	_, err := r.db.Exec(query, postId, userId)
+	res, err := r.db.Exec(query, postId, userId)
+	if err != nil {
+		return err
+	}
+	if rows, _ := res.RowsAffected(); rows == 0 {
+		return posts.PostNotFoundError{
+			Id: postId,
+		}
+	}
 
-	return err
+	return nil
 }
 
 func (r *PostsPostgresRepository) UpdatePost(postId string,

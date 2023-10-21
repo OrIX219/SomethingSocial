@@ -119,7 +119,12 @@ func (h HttpServer) DeletePost(w http.ResponseWriter, r *http.Request,
 	}
 	err = h.app.Commands.DeletePost.Handle(r.Context(), cmd)
 	if err != nil {
-		httperr.RespondWithSlugError(err, w, r)
+		switch err.(type) {
+		case posts.PostNotFoundError:
+			httperr.NotFound("post-not-found", err, w, r)
+		default:
+			httperr.RespondWithSlugError(err, w, r)
+		}
 		return
 	}
 
