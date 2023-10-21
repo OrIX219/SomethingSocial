@@ -29,7 +29,7 @@ func NewCreatePostHandler(repo posts.Repository) CreatePostHandler {
 }
 
 func (h CreatePostHandler) Handle(ctx context.Context, cmd CreatePost) error {
-	post, err := posts.NewPost(cmd.PostId, cmd.Content, cmd.PostDate, 0, cmd.Author)
+	post, err := posts.NewPost(cmd.PostId, cmd.Content, cmd.PostDate, cmd.Author)
 	if err != nil {
 		return err
 	}

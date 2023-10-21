@@ -61,19 +61,19 @@ func (h HttpServer) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createPost := CreatePost{}
-	if err := render.Decode(r, &createPost); err != nil {
+	postContent := PostContent{}
+	if err := render.Decode(r, &postContent); err != nil {
 		httperr.BadRequest("invalid-request", err, w, r)
 		return
 	}
-	if err := validateCreatePostRequest(&createPost); err != nil {
+	if err := validatePostContent(&postContent); err != nil {
 		httperr.BadRequest("invalid-request", err, w, r)
 		return
 	}
 
 	cmd := command.CreatePost{
 		PostId:   uuid.New().String(),
-		Content:  createPost.Content,
+		Content:  postContent.Content,
 		PostDate: time.Now(),
 		Author:   currentUser.Id,
 	}
@@ -85,6 +85,45 @@ func (h HttpServer) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Location", "/posts/"+cmd.PostId)
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h HttpServer) UpdatePost(w http.ResponseWriter, r *http.Request,
+	postId openapi_types.UUID) {
+	currentUser, err := auth.UserFromCtx(r.Context())
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	postContent := PostContent{}
+	if err := render.Decode(r, &postContent); err != nil {
+		httperr.BadRequest("invalid-request", err, w, r)
+		return
+	}
+	if err := validatePostContent(&postContent); err != nil {
+		httperr.BadRequest("invalid-request", err, w, r)
+		return
+	}
+
+	cmd := command.UpdatePost{
+		PostId:     postId.String(),
+		Content:    postContent.Content,
+		UpdateDate: time.Now(),
+		Author:     currentUser.Id,
+	}
+	err = h.app.Commands.UpdatePost.Handle(r.Context(), cmd)
+	if err != nil {
+		switch err.(type) {
+		case posts.PostNotFoundError:
+			httperr.NotFound("post-not-found", err, w, r)
+		default:
+			httperr.RespondWithSlugError(err, w, r)
+		}
+		return
+	}
+
+	w.Header().Set("Location", "/posts/"+cmd.PostId)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h HttpServer) GetFeed(w http.ResponseWriter, r *http.Request) {
@@ -237,8 +276,8 @@ func (h HttpServer) RemoveUpvote(w http.ResponseWriter, r *http.Request,
 	})
 }
 
-func validateCreatePostRequest(createPost *CreatePost) error {
-	if createPost.Content == "" {
+func validatePostContent(postContent *PostContent) error {
+	if postContent.Content == "" {
 		return errors.New("Empty post content")
 	}
 
@@ -257,10 +296,11 @@ func responsePostArray(posts []*posts.Post) PostArray {
 func marshalPost(post *posts.Post) Post {
 	id, _ := uuid.Parse(post.Id())
 	return Post{
-		Id:       id,
-		Content:  post.Content(),
-		PostDate: post.PostDate(),
-		Karma:    post.Karma(),
-		Author:   post.Author(),
+		Id:         id,
+		Content:    post.Content(),
+		PostDate:   post.PostDate(),
+		UpdateDate: post.UpdateDate(),
+		Karma:      post.Karma(),
+		Author:     post.Author(),
 	}
 }

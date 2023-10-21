@@ -31,6 +31,9 @@ type ServerInterface interface {
 	// (GET /posts/{postId})
 	GetPost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
 
+	// (PUT /posts/{postId})
+	UpdatePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
+
 	// (DELETE /posts/{postId}/downvote)
 	RemoveDownvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
 
@@ -70,6 +73,11 @@ func (_ Unimplemented) DeletePost(w http.ResponseWriter, r *http.Request, postId
 
 // (GET /posts/{postId})
 func (_ Unimplemented) GetPost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PUT /posts/{postId})
+func (_ Unimplemented) UpdatePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -253,6 +261,34 @@ func (siw *ServerInterfaceWrapper) GetPost(w http.ResponseWriter, r *http.Reques
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetPost(w, r, postId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// UpdatePost operation middleware
+func (siw *ServerInterfaceWrapper) UpdatePost(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "postId" -------------
+	var postId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "postId", runtime.ParamLocationPath, chi.URLParam(r, "postId"), &postId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdatePost(w, r, postId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -501,6 +537,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/posts/{postId}", wrapper.GetPost)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/posts/{postId}", wrapper.UpdatePost)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/posts/{postId}/downvote", wrapper.RemoveDownvote)

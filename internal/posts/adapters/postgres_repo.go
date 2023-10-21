@@ -18,11 +18,12 @@ const (
 )
 
 type PostModel struct {
-	Id       string    `db:"id"`
-	Content  string    `db:"content"`
-	PostDate time.Time `db:"post_date"`
-	Karma    int64     `db:"karma"`
-	Author   int64     `db:"author"`
+	Id         string     `db:"id"`
+	Content    string     `db:"content"`
+	PostDate   time.Time  `db:"post_date"`
+	UpdateDate *time.Time `db:"update_date"`
+	Karma      int64      `db:"karma"`
+	Author     int64      `db:"author"`
 }
 
 type PostsPostgresRepository struct {
@@ -89,29 +90,19 @@ func (r *PostsPostgresRepository) DeletePost(postId string, userId int64) error 
 	return nil
 }
 
-func (r *PostsPostgresRepository) UpdatePost(postId string,
-	updateFn func(post *posts.Post) (*posts.Post, error)) error {
-	user, err := r.GetPost(postId)
+func (r *PostsPostgresRepository) UpdatePost(userId int64,
+	updatedPost *posts.Post) error {
+	query := fmt.Sprintf(`UPDATE %s SET content=$1, update_date=$2
+		WHERE id=$3 AND author=$4`, postsTable)
+	res, err := r.db.Exec(query,
+		updatedPost.Content(), updatedPost.PostDate(),
+		updatedPost.Id(), updatedPost.Author())
 	if err != nil {
 		return err
 	}
-
-	updatedPost, err := updateFn(user)
-	if err != nil {
-		return err
-	}
-
-	query := fmt.Sprintf(`UPDATE %s SET content=$1, karma=$2 WHERE id=$3`,
-		postsTable)
-	res, err :=
-		r.db.Exec(query, updatedPost.Content(), updatedPost.Karma(), postId)
-	if err != nil {
-		return err
-	}
-
 	if rows, _ := res.RowsAffected(); rows == 0 {
 		return posts.PostNotFoundError{
-			Id: postId,
+			Id: updatedPost.Id(),
 		}
 	}
 
@@ -393,15 +384,16 @@ func (r *PostsPostgresRepository) GetPosts(userId int64,
 
 func (r *PostsPostgresRepository) marshalPost(post *posts.Post) PostModel {
 	return PostModel{
-		Id:       post.Id(),
-		Content:  post.Content(),
-		PostDate: post.PostDate(),
-		Karma:    post.Karma(),
-		Author:   post.Author(),
+		Id:         post.Id(),
+		Content:    post.Content(),
+		PostDate:   post.PostDate(),
+		UpdateDate: post.UpdateDate(),
+		Karma:      post.Karma(),
+		Author:     post.Author(),
 	}
 }
 
 func (r *PostsPostgresRepository) unmarshalPost(post PostModel) (*posts.Post, error) {
 	return posts.UnmarshalFromRepository(post.Id, post.Content, post.PostDate,
-		post.Karma, post.Author)
+		post.UpdateDate, post.Karma, post.Author)
 }

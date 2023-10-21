@@ -88,7 +88,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatePost'
+              $ref: '#/components/schemas/PostContent'
       responses:
         '201':
           $ref: '#/components/responses/PostCreated'
@@ -125,6 +125,27 @@ paths:
                 $ref: '#/components/schemas/Post'
         '404':
           $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    put:
+      operationId: updatePost
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostContent'
+      responses:
+        '204':
+          description: Post updated
         default:
           $ref: '#/components/responses/UnexpectedError'
     delete:
@@ -240,6 +261,9 @@ components:
         postDate:
           type: string
           format: date-time
+        updateDate:
+          type: string
+          format: date-time
         author:
           type: integer
           format: int64
@@ -249,13 +273,13 @@ components:
       items:
         $ref: '#/components/schemas/Post'
         
-    CreatePost:
+    PostContent:
       type: object
       required: [content]
       properties:
         content:
           type: string
-        
+    
     Status:
       type: object
       required: [status]

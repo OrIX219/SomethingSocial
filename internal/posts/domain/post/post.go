@@ -6,25 +6,26 @@ import (
 )
 
 type Post struct {
-	id       string
-	content  string
-	postDate time.Time
-	karma    int64
-	author   int64
+	id         string
+	content    string
+	postDate   time.Time
+	updateDate *time.Time
+	karma      int64
+	author     int64
 }
 
-func NewPost(id, content string, postDate time.Time,
-	karma, author int64) (*Post, error) {
-	if err := validatePostData(id, content, postDate, karma, author); err != nil {
+func NewPost(id, content string, postDate time.Time, author int64) (*Post, error) {
+	if err := validatePostData(id, content, postDate, author); err != nil {
 		return nil, err
 	}
 
 	return &Post{
-		id:       id,
-		content:  content,
-		postDate: postDate,
-		karma:    karma,
-		author:   author,
+		id:         id,
+		content:    content,
+		postDate:   postDate,
+		updateDate: nil,
+		karma:      0,
+		author:     author,
 	}, nil
 }
 
@@ -38,6 +39,10 @@ func (p Post) Content() string {
 
 func (p Post) PostDate() time.Time {
 	return p.postDate
+}
+
+func (p Post) UpdateDate() *time.Time {
+	return p.updateDate
 }
 
 func (p Post) Karma() int64 {
@@ -57,17 +62,18 @@ func (p *Post) Downvote() {
 }
 
 func UnmarshalFromRepository(id, content string, postDate time.Time,
-	karma, author int64) (*Post, error) {
-	post, err := NewPost(id, content, postDate, karma, author)
+	updateDate *time.Time, karma, author int64) (*Post, error) {
+	post, err := NewPost(id, content, postDate, author)
 	if err != nil {
 		return nil, err
 	}
+	post.updateDate = updateDate
+	post.karma = karma
 
 	return post, nil
 }
 
-func validatePostData(id, content string, postDate time.Time,
-	karma, author int64) error {
+func validatePostData(id, content string, postDate time.Time, author int64) error {
 	if id == "" {
 		return errors.New("Empty post id")
 	}

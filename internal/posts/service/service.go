@@ -35,6 +35,7 @@ func newApplication(repo posts.Repository,
 		Commands: app.Commands{
 			CreatePost:     command.NewCreatePostHandler(repo),
 			DeletePost:     command.NewDeletePostHandler(repo),
+			UpdatePost:     command.NewUpdatePostHandler(repo),
 			UpvotePost:     command.NewUpvotePostHandler(repo, usersService),
 			RemoveUpvote:   command.NewRemoveUpvoteHandler(repo, usersService),
 			DownvotePost:   command.NewDownvotePostHandler(repo, usersService),
