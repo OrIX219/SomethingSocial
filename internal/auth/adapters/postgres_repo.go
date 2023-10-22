@@ -7,10 +7,15 @@ import (
 
 	auth "github.com/OrIX219/SomethingSocial/internal/auth/domain/user"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 const (
 	usersTable = "users"
+)
+
+const (
+	errCodeUniqueViolation = "23505"
 )
 
 type UserModel struct {
@@ -43,6 +48,12 @@ func (r *UsersPostgresRepository) AddUser(user *auth.User) (int64, error) {
 		VALUES ($1, $2) RETURNING id`, usersTable)
 	row := r.db.QueryRow(query, user.Username(), user.Password())
 	if err := row.Scan(&id); err != nil {
+		pgErr, ok := err.(*pq.Error)
+		if ok && pgErr.Code == errCodeUniqueViolation {
+			return -1, auth.UsernameExistsError{
+				Username: user.Username(),
+			}
+		}
 		return -1, err
 	}
 

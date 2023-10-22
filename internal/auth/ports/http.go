@@ -39,7 +39,7 @@ func (h HttpServer) SignUp(w http.ResponseWriter, r *http.Request) {
 	err := h.app.Commands.AddUser.Handle(r.Context(), cmd)
 	if err != nil {
 		switch err.(type) {
-		case command.UsernameExistsError:
+		case auth.UsernameExistsError:
 			render.Respond(w, r, SignUpResult{
 				Status: "username already exists",
 			})

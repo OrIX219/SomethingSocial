@@ -16,3 +16,11 @@ type UserNotFoundError struct {
 func (e UserNotFoundError) Error() string {
 	return fmt.Sprintf("User %s:%s not found", e.Username, e.Password)
 }
+
+type UsernameExistsError struct {
+	Username string
+}
+
+func (e UsernameExistsError) Error() string {
+	return fmt.Sprintf("Username '%s' already exists", e.Username)
+}

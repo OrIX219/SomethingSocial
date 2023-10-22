@@ -5,7 +5,7 @@ SELECT 'up SQL query';
 CREATE TABLE users
 (
     id            serial primary key,
-    username      varchar(255) not null,
+    username      varchar(255) unique not null,
     password_hash varchar(255) not null
 );
 
