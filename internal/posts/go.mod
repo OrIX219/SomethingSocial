@@ -9,8 +9,6 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/oapi-codegen/runtime v1.0.0
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
-	google.golang.org/appengine v1.6.7
 	google.golang.org/grpc v1.59.0
 )
 
