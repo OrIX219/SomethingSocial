@@ -88,7 +88,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatePost'
+              $ref: '#/components/schemas/PostContent'
       responses:
         '201':
           $ref: '#/components/responses/PostCreated'
@@ -127,6 +127,27 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/UnexpectedError'
+    put:
+      operationId: editPost
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostContent'
+      responses:
+        '204':
+          description: Post updated
+        default:
+          $ref: '#/components/responses/UnexpectedError'
     delete:
       operationId: deletePost
       tags: [Posts]
@@ -145,6 +166,26 @@ paths:
           
   /posts/{postId}/upvote:
     post:
+      operationId: upvotePost
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Upvote status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: removeUpvote
       tags: [Posts]
       parameters:
         - in: path
@@ -165,6 +206,26 @@ paths:
           
   /posts/{postId}/downvote:
     post:
+      operationId: downvotePost
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: Downvote status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      operationId: removeDownvote
       tags: [Posts]
       parameters:
         - in: path
@@ -196,24 +257,29 @@ components:
           type: string
         karma:
           type: integer
+          format: int64
         postDate:
           type: string
           format: date-time
-        author:
+        editDate:
           type: string
+          format: date-time
+        author:
+          type: integer
+          format: int64
           
     PostArray:
       type: array
       items:
         $ref: '#/components/schemas/Post'
         
-    CreatePost:
+    PostContent:
       type: object
       required: [content]
       properties:
         content:
           type: string
-        
+    
     Status:
       type: object
       required: [status]
@@ -242,10 +308,6 @@ components:
             
     PostCreated:
       description: Post created
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Status'
       headers:
         Location:
           description: Newly created post's location

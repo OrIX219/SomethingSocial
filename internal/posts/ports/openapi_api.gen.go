@@ -31,11 +31,20 @@ type ServerInterface interface {
 	// (GET /posts/{postId})
 	GetPost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
 
+	// (PUT /posts/{postId})
+	EditPost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
+
+	// (DELETE /posts/{postId}/downvote)
+	RemoveDownvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
+
 	// (POST /posts/{postId}/downvote)
-	PostPostsPostIdDownvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
+	DownvotePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
+
+	// (DELETE /posts/{postId}/upvote)
+	RemoveUpvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
 
 	// (POST /posts/{postId}/upvote)
-	PostPostsPostIdUpvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
+	UpvotePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -67,13 +76,28 @@ func (_ Unimplemented) GetPost(w http.ResponseWriter, r *http.Request, postId op
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// (PUT /posts/{postId})
+func (_ Unimplemented) EditPost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (DELETE /posts/{postId}/downvote)
+func (_ Unimplemented) RemoveDownvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // (POST /posts/{postId}/downvote)
-func (_ Unimplemented) PostPostsPostIdDownvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
+func (_ Unimplemented) DownvotePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (DELETE /posts/{postId}/upvote)
+func (_ Unimplemented) RemoveUpvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
 // (POST /posts/{postId}/upvote)
-func (_ Unimplemented) PostPostsPostIdUpvote(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
+func (_ Unimplemented) UpvotePost(w http.ResponseWriter, r *http.Request, postId openapi_types.UUID) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -246,8 +270,8 @@ func (siw *ServerInterfaceWrapper) GetPost(w http.ResponseWriter, r *http.Reques
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PostPostsPostIdDownvote operation middleware
-func (siw *ServerInterfaceWrapper) PostPostsPostIdDownvote(w http.ResponseWriter, r *http.Request) {
+// EditPost operation middleware
+func (siw *ServerInterfaceWrapper) EditPost(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -264,7 +288,7 @@ func (siw *ServerInterfaceWrapper) PostPostsPostIdDownvote(w http.ResponseWriter
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostPostsPostIdDownvote(w, r, postId)
+		siw.Handler.EditPost(w, r, postId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -274,8 +298,8 @@ func (siw *ServerInterfaceWrapper) PostPostsPostIdDownvote(w http.ResponseWriter
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// PostPostsPostIdUpvote operation middleware
-func (siw *ServerInterfaceWrapper) PostPostsPostIdUpvote(w http.ResponseWriter, r *http.Request) {
+// RemoveDownvote operation middleware
+func (siw *ServerInterfaceWrapper) RemoveDownvote(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -292,7 +316,91 @@ func (siw *ServerInterfaceWrapper) PostPostsPostIdUpvote(w http.ResponseWriter, 
 	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostPostsPostIdUpvote(w, r, postId)
+		siw.Handler.RemoveDownvote(w, r, postId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// DownvotePost operation middleware
+func (siw *ServerInterfaceWrapper) DownvotePost(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "postId" -------------
+	var postId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "postId", runtime.ParamLocationPath, chi.URLParam(r, "postId"), &postId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DownvotePost(w, r, postId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// RemoveUpvote operation middleware
+func (siw *ServerInterfaceWrapper) RemoveUpvote(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "postId" -------------
+	var postId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "postId", runtime.ParamLocationPath, chi.URLParam(r, "postId"), &postId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RemoveUpvote(w, r, postId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// UpvotePost operation middleware
+func (siw *ServerInterfaceWrapper) UpvotePost(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "postId" -------------
+	var postId openapi_types.UUID
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "postId", runtime.ParamLocationPath, chi.URLParam(r, "postId"), &postId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "postId", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpvotePost(w, r, postId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -431,10 +539,19 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/posts/{postId}", wrapper.GetPost)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/posts/{postId}/downvote", wrapper.PostPostsPostIdDownvote)
+		r.Put(options.BaseURL+"/posts/{postId}", wrapper.EditPost)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/posts/{postId}/upvote", wrapper.PostPostsPostIdUpvote)
+		r.Delete(options.BaseURL+"/posts/{postId}/downvote", wrapper.RemoveDownvote)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/posts/{postId}/downvote", wrapper.DownvotePost)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/posts/{postId}/upvote", wrapper.RemoveUpvote)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/posts/{postId}/upvote", wrapper.UpvotePost)
 	})
 
 	return r

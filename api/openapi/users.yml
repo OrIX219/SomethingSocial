@@ -31,7 +31,8 @@ paths:
         - in: path
           name: userId
           schema:
-            type: string
+            type: integer
+            format: int64
           required: true
       responses:
         '200':
@@ -49,7 +50,8 @@ paths:
         - in: path
           name: userId
           schema:
-            type: string
+            type: integer
+            format: int64
           required: true
       responses:
         '200':
@@ -67,7 +69,8 @@ paths:
         - in: path
           name: userId
           schema:
-            type: string
+            type: integer
+            format: int64
           required: true
       responses:
         '200':
@@ -85,7 +88,8 @@ paths:
         - in: path
           name: userId
           schema:
-            type: string
+            type: integer
+            format: int64
           required: true
       responses:
         '200':
@@ -101,7 +105,8 @@ paths:
         - in: path
           name: userId
           schema:
-            type: string
+            type: integer
+            format: int64
           required: true
       responses:
         '200':
@@ -113,10 +118,11 @@ components:
   schemas:
     User:
       type: object
-      required: [id, name, registrationDate, karma, postsCount]
+      required: [id, name, registrationDate, lastLogin, karma, postsCount, followers, following, role]
       properties:
         id:
-          type: string
+          type: integer
+          format: int64
         name:
           type: string
         registrationDate:
@@ -127,8 +133,19 @@ components:
           format: date-time
         karma:
           type: integer
+          format: int64
         postsCount:
           type: integer
+          format: int64
+        followers:
+          type: integer
+          format: int64
+        following:
+          type: integer
+          format: int64
+        role:
+          type: string
+          enum: [user, moderator, admin]
           
     UserArray:
       type: array

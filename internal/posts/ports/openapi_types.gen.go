@@ -13,11 +13,6 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
-// CreatePost defines model for CreatePost.
-type CreatePost struct {
-	Content string `json:"content"`
-}
-
 // Error defines model for Error.
 type Error struct {
 	Message string `json:"message"`
@@ -26,23 +21,26 @@ type Error struct {
 
 // Post defines model for Post.
 type Post struct {
-	Author   string             `json:"author"`
+	Author   int64              `json:"author"`
 	Content  string             `json:"content"`
+	EditDate *time.Time         `json:"editDate,omitempty"`
 	Id       openapi_types.UUID `json:"id"`
-	Karma    int                `json:"karma"`
+	Karma    int64              `json:"karma"`
 	PostDate time.Time          `json:"postDate"`
 }
 
 // PostArray defines model for PostArray.
 type PostArray = []Post
 
+// PostContent defines model for PostContent.
+type PostContent struct {
+	Content string `json:"content"`
+}
+
 // Status defines model for Status.
 type Status struct {
 	Status string `json:"status"`
 }
-
-// PostCreated defines model for PostCreated.
-type PostCreated = Status
 
 // Posts defines model for Posts.
 type Posts = PostArray
@@ -63,4 +61,7 @@ type GetPostsParams struct {
 }
 
 // CreatePostJSONRequestBody defines body for CreatePost for application/json ContentType.
-type CreatePostJSONRequestBody = CreatePost
+type CreatePostJSONRequestBody = PostContent
+
+// EditPostJSONRequestBody defines body for EditPost for application/json ContentType.
+type EditPostJSONRequestBody = PostContent

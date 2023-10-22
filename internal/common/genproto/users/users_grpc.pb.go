@@ -26,6 +26,7 @@ type UsersServiceClient interface {
 	AddUser(ctx context.Context, in *AddUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetKarma(ctx context.Context, in *GetKarmaRequest, opts ...grpc.CallOption) (*GetKarmaResponse, error)
 	UpdateKarma(ctx context.Context, in *UpdateKarmaRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateLastLogIn(ctx context.Context, in *UpdateLastLogInRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type usersServiceClient struct {
@@ -63,6 +64,15 @@ func (c *usersServiceClient) UpdateKarma(ctx context.Context, in *UpdateKarmaReq
 	return out, nil
 }
 
+func (c *usersServiceClient) UpdateLastLogIn(ctx context.Context, in *UpdateLastLogInRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/users.UsersService/UpdateLastLogIn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServiceServer is the server API for UsersService service.
 // All implementations should embed UnimplementedUsersServiceServer
 // for forward compatibility
@@ -70,6 +80,7 @@ type UsersServiceServer interface {
 	AddUser(context.Context, *AddUserRequest) (*emptypb.Empty, error)
 	GetKarma(context.Context, *GetKarmaRequest) (*GetKarmaResponse, error)
 	UpdateKarma(context.Context, *UpdateKarmaRequest) (*emptypb.Empty, error)
+	UpdateLastLogIn(context.Context, *UpdateLastLogInRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedUsersServiceServer should be embedded to have forward compatible implementations.
@@ -84,6 +95,9 @@ func (UnimplementedUsersServiceServer) GetKarma(context.Context, *GetKarmaReques
 }
 func (UnimplementedUsersServiceServer) UpdateKarma(context.Context, *UpdateKarmaRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateKarma not implemented")
+}
+func (UnimplementedUsersServiceServer) UpdateLastLogIn(context.Context, *UpdateLastLogInRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateLastLogIn not implemented")
 }
 
 // UnsafeUsersServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -151,6 +165,24 @@ func _UsersService_UpdateKarma_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UsersService_UpdateLastLogIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateLastLogInRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServiceServer).UpdateLastLogIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.UsersService/UpdateLastLogIn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServiceServer).UpdateLastLogIn(ctx, req.(*UpdateLastLogInRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UsersService_ServiceDesc is the grpc.ServiceDesc for UsersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -169,6 +201,10 @@ var UsersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateKarma",
 			Handler:    _UsersService_UpdateKarma_Handler,
+		},
+		{
+			MethodName: "UpdateLastLogIn",
+			Handler:    _UsersService_UpdateLastLogIn_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

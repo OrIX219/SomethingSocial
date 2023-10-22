@@ -5,20 +5,22 @@ package users;
 option go_package = "github.com/OrIX219/SomethingSocial/internal/users";
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 service UsersService {
   rpc AddUser(AddUserRequest) returns (google.protobuf.Empty) {}
   rpc GetKarma(GetKarmaRequest) returns (GetKarmaResponse) {}
   rpc UpdateKarma(UpdateKarmaRequest) returns (google.protobuf.Empty) {}
+  rpc UpdateLastLogIn(UpdateLastLogInRequest) returns (google.protobuf.Empty) {}
 }
 
 message AddUserRequest {
-  string user_id = 1;
+  int64 user_id = 1;
   string name = 2;
 }
 
 message GetKarmaRequest {
-  string user_id = 1;
+  int64 user_id = 1;
 }
 
 message GetKarmaResponse {
@@ -26,6 +28,11 @@ message GetKarmaResponse {
 }
 
 message UpdateKarmaRequest {
-  string user_id = 1;
+  int64 user_id = 1;
   int64 delta = 2;
+}
+
+message UpdateLastLogInRequest {
+  int64 user_id = 1;
+  google.protobuf.Timestamp time = 2;
 }
