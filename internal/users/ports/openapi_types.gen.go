@@ -26,6 +26,8 @@ type Error struct {
 
 // User defines model for User.
 type User struct {
+	Followers        int64     `json:"followers"`
+	Following        int64     `json:"following"`
 	Id               int64     `json:"id"`
 	Karma            int64     `json:"karma"`
 	LastLogin        time.Time `json:"lastLogin"`

@@ -12,6 +12,8 @@ type User struct {
 	lastLogin        time.Time
 	karma            int64
 	postsCount       int64
+	followers        int64
+	following        int64
 	role             UserRole
 }
 
@@ -55,6 +57,14 @@ func (u User) PostsCount() int64 {
 	return u.postsCount
 }
 
+func (u User) Followers() int64 {
+	return u.followers
+}
+
+func (u User) Following() int64 {
+	return u.following
+}
+
 func (u User) Role() UserRole {
 	return u.role
 }
@@ -80,7 +90,7 @@ func (u *User) Demote() {
 }
 
 func UnmarshalFromRepository(id int64, name string, regDate, lastLogin time.Time,
-	karma, postsCount int64, role string) (*User, error) {
+	karma, postsCount, followers, following int64, role string) (*User, error) {
 	user, err := NewUser(id, name)
 	if err != nil {
 		return nil, err
@@ -90,6 +100,8 @@ func UnmarshalFromRepository(id int64, name string, regDate, lastLogin time.Time
 	user.lastLogin = lastLogin
 	user.karma = karma
 	user.postsCount = postsCount
+	user.followers = followers
+	user.following = following
 
 	userRole, err := ParseRole(role)
 	if err != nil {

@@ -22,6 +22,8 @@ type UserModel struct {
 	LastLogin        time.Time `db:"last_login"`
 	Karma            int64     `db:"karma"`
 	PostsCount       int64     `db:"posts_count"`
+	Followers        int64     `db:"followers"`
+	Following        int64     `db:"following"`
 	Role             string    `db:"role"`
 }
 
@@ -120,7 +122,7 @@ func (r *UsersPostgresRepository) UpdateUser(userId int64,
 
 func (r *UsersPostgresRepository) FollowUser(userId, targetId int64) error {
 	query := fmt.Sprintf(`INSERT INTO %s (follower_id, follow_id)
-		VALUES ($1::int, $2::int)	EXCEPT SELECT follower_id, follow_id FROM %[1]s`,
+		VALUES ($1::int, $2::int) EXCEPT SELECT follower_id, follow_id FROM %[1]s`,
 		followingTable)
 	_, err := r.db.Exec(query, userId, targetId)
 
@@ -199,6 +201,8 @@ func (r *UsersPostgresRepository) marshalUser(user *users.User) UserModel {
 		LastLogin:        user.LastLogin(),
 		Karma:            user.Karma(),
 		PostsCount:       user.PostsCount(),
+		Followers:        user.Followers(),
+		Following:        user.Following(),
 		Role:             user.Role().String(),
 	}
 }
@@ -206,5 +210,5 @@ func (r *UsersPostgresRepository) marshalUser(user *users.User) UserModel {
 func (r *UsersPostgresRepository) unmarshalUser(user UserModel) (*users.User, error) {
 	return users.UnmarshalFromRepository(
 		user.Id, user.Name, user.RegistrationDate, user.LastLogin,
-		user.Karma, user.PostsCount, user.Role)
+		user.Karma, user.PostsCount, user.Followers, user.Following, user.Role)
 }

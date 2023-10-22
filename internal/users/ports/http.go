@@ -164,6 +164,8 @@ func marshalUser(user *users.User) User {
 		LastLogin:        user.LastLogin(),
 		Karma:            user.Karma(),
 		PostsCount:       user.PostsCount(),
+		Followers:        user.Followers(),
+		Following:        user.Following(),
 		Role:             role,
 	}
 }

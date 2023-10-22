@@ -118,7 +118,7 @@ components:
   schemas:
     User:
       type: object
-      required: [id, name, registrationDate, lastLogin, karma, postsCount, role]
+      required: [id, name, registrationDate, lastLogin, karma, postsCount, followers, following, role]
       properties:
         id:
           type: integer
@@ -135,6 +135,12 @@ components:
           type: integer
           format: int64
         postsCount:
+          type: integer
+          format: int64
+        followers:
+          type: integer
+          format: int64
+        following:
           type: integer
           format: int64
         role:

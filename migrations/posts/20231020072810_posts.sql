@@ -64,6 +64,11 @@ CREATE TRIGGER tr_downvote_delete AFTER DELETE ON downvotes FOR EACH ROW EXECUTE
 -- +goose StatementBegin
 SELECT 'down SQL query';
 
+DROP TRIGGER tr_upvote_insert ON upvotes;
+DROP TRIGGER tr_upvote_delete ON upvotes;
+DROP TRIGGER tr_downvote_insert ON downvotes;
+DROP TRIGGER tr_downvote_delete ON downvotes;
+
 DROP TABLE posts;
 
 DROP TABLE upvotes;
