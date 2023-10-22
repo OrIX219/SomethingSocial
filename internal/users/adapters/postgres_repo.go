@@ -101,7 +101,7 @@ func (r *UsersPostgresRepository) UpdateUser(userId int64,
 	}
 
 	query := fmt.Sprintf(`UPDATE %s SET name=$1, last_login=$2, karma=$3,
-		posts_count=$4 role=$5 WHERE id=$6`, usersTable)
+		posts_count=$4, role=$5 WHERE id=$6`, usersTable)
 	res, err := r.db.Exec(query, updatedUser.Name(), updatedUser.LastLogin(),
 		updatedUser.Karma(), updatedUser.PostsCount(),
 		updatedUser.Role().String(), userId)

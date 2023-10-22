@@ -11,7 +11,8 @@ type Application struct {
 }
 
 type Commands struct {
-	AddUser command.AddUserHandler
+	AddUser         command.AddUserHandler
+	UpdateLastLogIn command.UpdateLastLogInHandler
 }
 
 type Queries struct {

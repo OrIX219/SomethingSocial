@@ -3,6 +3,7 @@ package ports
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/OrIX219/SomethingSocial/internal/auth/app"
 	"github.com/OrIX219/SomethingSocial/internal/auth/app/command"
@@ -86,7 +87,7 @@ func (h HttpServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.app.Queries.GetUserId.Handle(r.Context(), query.GetUserId{
+	userId, err := h.app.Queries.GetUserId.Handle(r.Context(), query.GetUserId{
 		Username: signIn.Username,
 		Password: signIn.Password,
 	})
@@ -104,8 +105,18 @@ func (h HttpServer) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	signedToken, err := h.app.Queries.GenerateToken.Handle(r.Context(),
 		query.GenerateToken{
-			UserId: id,
+			UserId: userId,
 		})
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	cmd := command.UpdateLastLogIn{
+		UserId: userId,
+		Time:   time.Now(),
+	}
+	err = h.app.Commands.UpdateLastLogIn.Handle(r.Context(), cmd)
 	if err != nil {
 		httperr.RespondWithSlugError(err, w, r)
 		return

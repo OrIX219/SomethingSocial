@@ -63,6 +63,10 @@ func (u *User) UpdateKarma(delta int64) {
 	u.karma += delta
 }
 
+func (u *User) LogInAt(time time.Time) {
+	u.lastLogin = time
+}
+
 func (u *User) Promote() {
 	if u.role < UserRoleAdmin {
 		u.role <<= 1

@@ -33,7 +33,8 @@ func newApplication(repo auth.Repository,
 	usersService command.UsersService) app.Application {
 	return app.Application{
 		Commands: app.Commands{
-			AddUser: command.NewAddUserHandler(repo, usersService),
+			AddUser:         command.NewAddUserHandler(repo, usersService),
+			UpdateLastLogIn: command.NewUpdateLastLogInHandler(usersService),
 		},
 		Queries: app.Queries{
 			GetUserId:     query.NewGetUserIdHandler(repo),

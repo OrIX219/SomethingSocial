@@ -59,3 +59,16 @@ func (g GrpcServer) UpdateKarma(ctx context.Context,
 
 	return &empty.Empty{}, nil
 }
+
+func (g GrpcServer) UpdateLastLogIn(ctx context.Context,
+	request *users.UpdateLastLogInRequest) (*empty.Empty, error) {
+	err := g.app.Commands.UpdateLastLogIn.Handle(ctx, command.UpdateLastLogIn{
+		UserId: request.UserId,
+		Time:   request.Time.AsTime(),
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &empty.Empty{}, nil
+}
