@@ -12,19 +12,30 @@ type DeletePost struct {
 }
 
 type DeletePostHandler struct {
-	repo posts.Repository
+	repo         posts.Repository
+	usersService UsersService
 }
 
-func NewDeletePostHandler(repo posts.Repository) DeletePostHandler {
+func NewDeletePostHandler(repo posts.Repository,
+	usersService UsersService) DeletePostHandler {
 	if repo == nil {
 		panic("DeletePostHandler nil repo")
 	}
+	if usersService == nil {
+		panic("DeletePostHandler nil usersService")
+	}
 
 	return DeletePostHandler{
-		repo: repo,
+		repo:         repo,
+		usersService: usersService,
 	}
 }
 
 func (h DeletePostHandler) Handle(ctx context.Context, cmd DeletePost) error {
-	return h.repo.DeletePost(cmd.PostId, cmd.UserId)
+	err := h.repo.DeletePost(cmd.PostId, cmd.UserId)
+	if err != nil {
+		return err
+	}
+
+	return h.usersService.UpdatePostsCount(ctx, cmd.UserId, -1)
 }

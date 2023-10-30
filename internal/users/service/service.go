@@ -24,11 +24,14 @@ func NewApplication() app.Application {
 func newApplication(repo users.Repository) app.Application {
 	return app.Application{
 		Commands: app.Commands{
-			AddUser:         command.NewAddUserHandler(repo),
-			UpdateKarma:     command.NewUpdateKarmaHandler(repo),
-			UpdateLastLogIn: command.NewUpdateLastLogInHandler(repo),
-			FollowUser:      command.NewFollowUserHandler(repo),
-			UnfollowUser:    command.NewUnfollowUserHandler(repo),
+			AddUser:          command.NewAddUserHandler(repo),
+			UpdateKarma:      command.NewUpdateKarmaHandler(repo),
+			UpdatePostsCount: command.NewUpdatePostsCountHandler(repo),
+			UpdateLastLogIn:  command.NewUpdateLastLogInHandler(repo),
+			FollowUser:       command.NewFollowUserHandler(repo),
+			UnfollowUser:     command.NewUnfollowUserHandler(repo),
+			PromoteUser:      command.NewPromoteUserHandler(repo),
+			DemoteUser:       command.NewDemoteUserHandler(repo),
 		},
 		Queries: app.Queries{
 			GetKarma:     query.NewGetKarmaHandler(repo),

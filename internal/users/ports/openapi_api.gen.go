@@ -21,6 +21,9 @@ type ServerInterface interface {
 	// (GET /user/{userId})
 	GetUser(w http.ResponseWriter, r *http.Request, userId int64)
 
+	// (POST /user/{userId}/demote)
+	DemoteUser(w http.ResponseWriter, r *http.Request, userId int64)
+
 	// (POST /user/{userId}/follow)
 	FollowUser(w http.ResponseWriter, r *http.Request, userId int64)
 
@@ -29,6 +32,9 @@ type ServerInterface interface {
 
 	// (GET /user/{userId}/following)
 	GetUserFollows(w http.ResponseWriter, r *http.Request, userId int64)
+
+	// (POST /user/{userId}/promote)
+	PromoteUser(w http.ResponseWriter, r *http.Request, userId int64)
 
 	// (POST /user/{userId}/unfollow)
 	UnfollowUser(w http.ResponseWriter, r *http.Request, userId int64)
@@ -48,6 +54,11 @@ func (_ Unimplemented) GetUser(w http.ResponseWriter, r *http.Request, userId in
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
+// (POST /user/{userId}/demote)
+func (_ Unimplemented) DemoteUser(w http.ResponseWriter, r *http.Request, userId int64) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // (POST /user/{userId}/follow)
 func (_ Unimplemented) FollowUser(w http.ResponseWriter, r *http.Request, userId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
@@ -60,6 +71,11 @@ func (_ Unimplemented) GetUserFollowers(w http.ResponseWriter, r *http.Request, 
 
 // (GET /user/{userId}/following)
 func (_ Unimplemented) GetUserFollows(w http.ResponseWriter, r *http.Request, userId int64) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /user/{userId}/promote)
+func (_ Unimplemented) PromoteUser(w http.ResponseWriter, r *http.Request, userId int64) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -113,6 +129,34 @@ func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Reques
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetUser(w, r, userId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// DemoteUser operation middleware
+func (siw *ServerInterfaceWrapper) DemoteUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "userId" -------------
+	var userId int64
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "userId", runtime.ParamLocationPath, chi.URLParam(r, "userId"), &userId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "userId", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DemoteUser(w, r, userId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -197,6 +241,34 @@ func (siw *ServerInterfaceWrapper) GetUserFollows(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetUserFollows(w, r, userId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// PromoteUser operation middleware
+func (siw *ServerInterfaceWrapper) PromoteUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "userId" -------------
+	var userId int64
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "userId", runtime.ParamLocationPath, chi.URLParam(r, "userId"), &userId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "userId", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PromoteUser(w, r, userId)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -354,6 +426,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/user/{userId}", wrapper.GetUser)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/user/{userId}/demote", wrapper.DemoteUser)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/user/{userId}/follow", wrapper.FollowUser)
 	})
 	r.Group(func(r chi.Router) {
@@ -361,6 +436,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/user/{userId}/following", wrapper.GetUserFollows)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/user/{userId}/promote", wrapper.PromoteUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/user/{userId}/unfollow", wrapper.UnfollowUser)

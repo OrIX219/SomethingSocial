@@ -72,3 +72,16 @@ func (g GrpcServer) UpdateLastLogIn(ctx context.Context,
 
 	return &empty.Empty{}, nil
 }
+
+func (g GrpcServer) UpdatePostsCount(ctx context.Context,
+	request *users.UpdatePostsCountRequest) (*empty.Empty, error) {
+	err := g.app.Commands.UpdatePostsCount.Handle(ctx, command.UpdatePostsCount{
+		UserId: request.UserId,
+		Delta:  request.Delta,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &empty.Empty{}, nil
+}

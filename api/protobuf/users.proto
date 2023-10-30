@@ -12,6 +12,7 @@ service UsersService {
   rpc GetKarma(GetKarmaRequest) returns (GetKarmaResponse) {}
   rpc UpdateKarma(UpdateKarmaRequest) returns (google.protobuf.Empty) {}
   rpc UpdateLastLogIn(UpdateLastLogInRequest) returns (google.protobuf.Empty) {}
+  rpc UpdatePostsCount(UpdatePostsCountRequest) returns (google.protobuf.Empty) {}
 }
 
 message AddUserRequest {
@@ -35,4 +36,9 @@ message UpdateKarmaRequest {
 message UpdateLastLogInRequest {
   int64 user_id = 1;
   google.protobuf.Timestamp time = 2;
+}
+
+message UpdatePostsCountRequest {
+  int64 user_id = 1;
+  int64 delta = 2;
 }

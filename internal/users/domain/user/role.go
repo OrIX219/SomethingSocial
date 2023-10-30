@@ -12,16 +12,12 @@ const (
 type UserRole int
 
 func (role UserRole) String() string {
-	switch role {
-	case UserRoleUser:
-		return "user"
-	case UserRoleModerator:
-		return "moderator"
-	case UserRoleAdmin:
-		return "admin"
-	default:
-		return "unknown"
-	}
+	return [...]string{
+		"unknown",
+		"user",
+		"moderator",
+		"admin",
+	}[role]
 }
 
 func ParseRole(role string) (UserRole, error) {
@@ -35,4 +31,15 @@ func ParseRole(role string) (UserRole, error) {
 	default:
 		return UserRoleUnknown, fmt.Errorf("Invalid user role: %s", role)
 	}
+}
+
+type NotEnoughRightsError struct {
+	UserId   int64
+	UserRole UserRole
+	Action   string
+}
+
+func (e NotEnoughRightsError) Error() string {
+	return fmt.Sprintf("User %d (%s) has not enough rights for: %s",
+		e.UserId, e.UserRole, e.Action)
 }

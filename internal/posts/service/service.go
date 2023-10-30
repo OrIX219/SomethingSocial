@@ -33,8 +33,8 @@ func newApplication(repo posts.Repository,
 	usersService app.UsersService) app.Application {
 	return app.Application{
 		Commands: app.Commands{
-			CreatePost:     command.NewCreatePostHandler(repo),
-			DeletePost:     command.NewDeletePostHandler(repo),
+			CreatePost:     command.NewCreatePostHandler(repo, usersService),
+			DeletePost:     command.NewDeletePostHandler(repo, usersService),
 			EditPost:       command.NewEditPostHandler(repo),
 			UpvotePost:     command.NewUpvotePostHandler(repo, usersService),
 			RemoveUpvote:   command.NewRemoveUpvoteHandler(repo, usersService),
