@@ -30,6 +30,8 @@ func newApplication(repo users.Repository) app.Application {
 			UpdateLastLogIn:  command.NewUpdateLastLogInHandler(repo),
 			FollowUser:       command.NewFollowUserHandler(repo),
 			UnfollowUser:     command.NewUnfollowUserHandler(repo),
+			PromoteUser:      command.NewPromoteUserHandler(repo),
+			DemoteUser:       command.NewDemoteUserHandler(repo),
 		},
 		Queries: app.Queries{
 			GetKarma:     query.NewGetKarmaHandler(repo),

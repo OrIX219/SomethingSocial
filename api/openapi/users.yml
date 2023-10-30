@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Test API
   description: TODO
-  version: 0.1.0
+  version: 0.1.1
 servers:
   - url: https://{hostname}/api
     variables:
@@ -93,7 +93,7 @@ paths:
           required: true
       responses:
         '200':
-          $ref: '#/components/responses/FollowStatus'
+          $ref: '#/components/responses/Status'
         default:
           $ref: '#/components/responses/UnexpectedError'
           
@@ -110,7 +110,41 @@ paths:
           required: true
       responses:
         '200':
-          $ref: '#/components/responses/FollowStatus'
+          $ref: '#/components/responses/Status'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /user/{userId}/promote:
+    post:
+      operationId: promoteUser
+      tags: [User]
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Status'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+  
+  /user/{userId}/demote:
+    post:
+      operationId: demoteUser
+      tags: [User]
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Status'
         default:
           $ref: '#/components/responses/UnexpectedError'
   
@@ -151,6 +185,13 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/User'
+    
+    Status:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
         
     Error:
       type: object
@@ -185,16 +226,12 @@ components:
           schema:
             $ref: '#/components/schemas/UserArray'
     
-    FollowStatus:
-      description: Follow status
+    Status:
+      description: Status of action
       content:
         application/json:
           schema:
-            type: object
-            required: [status]
-            properties:
-              status:
-                type: string
+            $ref: '#/components/schemas/Status'
             
     NotFound:
       description: Page not found

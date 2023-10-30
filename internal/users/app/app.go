@@ -17,6 +17,8 @@ type Commands struct {
 	UpdateLastLogIn  command.UpdateLastLogInHandler
 	FollowUser       command.FollowUserHandler
 	UnfollowUser     command.UnfollowUserHandler
+	PromoteUser      command.PromoteUserHandler
+	DemoteUser       command.DemoteUserHandler
 }
 
 type Queries struct {

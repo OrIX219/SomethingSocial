@@ -61,7 +61,7 @@ func (h HttpServer) FollowUser(w http.ResponseWriter, r *http.Request, userId in
 	if err != nil {
 		switch err.(type) {
 		case users.UserNotFoundError:
-			render.Respond(w, r, FollowStatus{
+			render.Respond(w, r, Status{
 				Status: "user not found",
 			})
 		default:
@@ -70,7 +70,7 @@ func (h HttpServer) FollowUser(w http.ResponseWriter, r *http.Request, userId in
 		return
 	}
 
-	render.Respond(w, r, FollowStatus{
+	render.Respond(w, r, Status{
 		Status: "ok",
 	})
 }
@@ -89,7 +89,7 @@ func (h HttpServer) UnfollowUser(w http.ResponseWriter, r *http.Request, userId 
 	if err != nil {
 		switch err.(type) {
 		case users.UserNotFoundError:
-			render.Respond(w, r, FollowStatus{
+			render.Respond(w, r, Status{
 				Status: "user not found",
 			})
 		default:
@@ -98,7 +98,7 @@ func (h HttpServer) UnfollowUser(w http.ResponseWriter, r *http.Request, userId 
 		return
 	}
 
-	render.Respond(w, r, FollowStatus{
+	render.Respond(w, r, Status{
 		Status: "ok",
 	})
 }
@@ -135,6 +135,54 @@ func (h HttpServer) GetUserFollows(w http.ResponseWriter, r *http.Request, userI
 	}
 
 	render.Respond(w, r, responseUserArray(following))
+}
+
+func (h HttpServer) PromoteUser(w http.ResponseWriter, r *http.Request, userId int64) {
+	currentUser, err := auth.UserFromCtx(r.Context())
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	err = h.app.Commands.PromoteUser.Handle(r.Context(), command.PromoteUser{
+		UserId:       currentUser.Id,
+		TargetUserId: userId,
+	})
+	if err != nil {
+		switch err.(type) {
+		case users.NotEnoughRightsError:
+			render.Respond(w, r, Status{
+				Status: err.Error(),
+			})
+		default:
+			httperr.RespondWithSlugError(err, w, r)
+		}
+		return
+	}
+}
+
+func (h HttpServer) DemoteUser(w http.ResponseWriter, r *http.Request, userId int64) {
+	currentUser, err := auth.UserFromCtx(r.Context())
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	err = h.app.Commands.DemoteUser.Handle(r.Context(), command.DemoteUser{
+		UserId:       currentUser.Id,
+		TargetUserId: userId,
+	})
+	if err != nil {
+		switch err.(type) {
+		case users.NotEnoughRightsError:
+			render.Respond(w, r, Status{
+				Status: err.Error(),
+			})
+		default:
+			httperr.RespondWithSlugError(err, w, r)
+		}
+		return
+	}
 }
 
 func responseUserArray(users []*users.User) UserArray {

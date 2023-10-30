@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -81,16 +82,32 @@ func (u *User) LogInAt(time time.Time) {
 	u.lastLogin = time
 }
 
-func (u *User) Promote() {
-	if u.role < UserRoleAdmin {
-		u.role <<= 1
+func (u *User) Promote(initiator *User) error {
+	if initiator.Role() <= u.Role() {
+		return NotEnoughRightsError{
+			UserId:   initiator.Id(),
+			UserRole: initiator.Role(),
+			Action:   fmt.Sprintf("Promote user %d (%s)", u.Id(), u.Role()),
+		}
 	}
+	if u.role < UserRoleAdmin {
+		u.role++
+	}
+	return nil
 }
 
-func (u *User) Demote() {
-	if u.role > UserRoleUser {
-		u.role >>= 1
+func (u *User) Demote(initiator *User) error {
+	if u.Id() != initiator.Id() && initiator.Role() <= u.Role() {
+		return NotEnoughRightsError{
+			UserId:   initiator.Id(),
+			UserRole: initiator.Role(),
+			Action:   fmt.Sprintf("Demote user %d (%s)", u.Id(), u.Role()),
+		}
 	}
+	if u.role > UserRoleUser {
+		u.role--
+	}
+	return nil
 }
 
 func UnmarshalFromRepository(id int64, name string, regDate, lastLogin time.Time,

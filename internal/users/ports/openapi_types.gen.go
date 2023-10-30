@@ -24,6 +24,11 @@ type Error struct {
 	Slug    string `json:"slug"`
 }
 
+// Status defines model for Status.
+type Status struct {
+	Status string `json:"status"`
+}
+
 // User defines model for User.
 type User struct {
 	Followers        int64     `json:"followers"`
@@ -42,11 +47,6 @@ type UserRole string
 
 // UserArray defines model for UserArray.
 type UserArray = []User
-
-// FollowStatus defines model for FollowStatus.
-type FollowStatus struct {
-	Status string `json:"status"`
-}
 
 // UnexpectedError defines model for UnexpectedError.
 type UnexpectedError = Error
