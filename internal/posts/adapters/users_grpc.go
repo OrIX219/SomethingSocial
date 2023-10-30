@@ -24,3 +24,12 @@ func (s UsersGrpc) UpdateKarma(ctx context.Context, userId, delta int64) error {
 
 	return err
 }
+
+func (s UsersGrpc) UpdatePostsCount(ctx context.Context, userId, delta int64) error {
+	_, err := s.client.UpdatePostsCount(ctx, &users.UpdatePostsCountRequest{
+		UserId: userId,
+		Delta:  delta,
+	})
+
+	return err
+}

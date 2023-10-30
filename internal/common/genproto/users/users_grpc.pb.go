@@ -27,6 +27,7 @@ type UsersServiceClient interface {
 	GetKarma(ctx context.Context, in *GetKarmaRequest, opts ...grpc.CallOption) (*GetKarmaResponse, error)
 	UpdateKarma(ctx context.Context, in *UpdateKarmaRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateLastLogIn(ctx context.Context, in *UpdateLastLogInRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdatePostsCount(ctx context.Context, in *UpdatePostsCountRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type usersServiceClient struct {
@@ -73,6 +74,15 @@ func (c *usersServiceClient) UpdateLastLogIn(ctx context.Context, in *UpdateLast
 	return out, nil
 }
 
+func (c *usersServiceClient) UpdatePostsCount(ctx context.Context, in *UpdatePostsCountRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/users.UsersService/UpdatePostsCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServiceServer is the server API for UsersService service.
 // All implementations should embed UnimplementedUsersServiceServer
 // for forward compatibility
@@ -81,6 +91,7 @@ type UsersServiceServer interface {
 	GetKarma(context.Context, *GetKarmaRequest) (*GetKarmaResponse, error)
 	UpdateKarma(context.Context, *UpdateKarmaRequest) (*emptypb.Empty, error)
 	UpdateLastLogIn(context.Context, *UpdateLastLogInRequest) (*emptypb.Empty, error)
+	UpdatePostsCount(context.Context, *UpdatePostsCountRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedUsersServiceServer should be embedded to have forward compatible implementations.
@@ -98,6 +109,9 @@ func (UnimplementedUsersServiceServer) UpdateKarma(context.Context, *UpdateKarma
 }
 func (UnimplementedUsersServiceServer) UpdateLastLogIn(context.Context, *UpdateLastLogInRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateLastLogIn not implemented")
+}
+func (UnimplementedUsersServiceServer) UpdatePostsCount(context.Context, *UpdatePostsCountRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePostsCount not implemented")
 }
 
 // UnsafeUsersServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -183,6 +197,24 @@ func _UsersService_UpdateLastLogIn_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UsersService_UpdatePostsCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePostsCountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServiceServer).UpdatePostsCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.UsersService/UpdatePostsCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServiceServer).UpdatePostsCount(ctx, req.(*UpdatePostsCountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UsersService_ServiceDesc is the grpc.ServiceDesc for UsersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -205,6 +237,10 @@ var UsersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateLastLogIn",
 			Handler:    _UsersService_UpdateLastLogIn_Handler,
+		},
+		{
+			MethodName: "UpdatePostsCount",
+			Handler:    _UsersService_UpdatePostsCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

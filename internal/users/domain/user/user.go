@@ -73,6 +73,10 @@ func (u *User) UpdateKarma(delta int64) {
 	u.karma += delta
 }
 
+func (u *User) UpdatePostsCount(delta int64) {
+	u.postsCount += delta
+}
+
 func (u *User) LogInAt(time time.Time) {
 	u.lastLogin = time
 }

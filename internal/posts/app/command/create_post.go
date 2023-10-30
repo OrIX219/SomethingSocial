@@ -15,16 +15,22 @@ type CreatePost struct {
 }
 
 type CreatePostHandler struct {
-	repo posts.Repository
+	repo         posts.Repository
+	usersService UsersService
 }
 
-func NewCreatePostHandler(repo posts.Repository) CreatePostHandler {
+func NewCreatePostHandler(repo posts.Repository,
+	usersService UsersService) CreatePostHandler {
 	if repo == nil {
 		panic("CreatePostHandler nil repo")
 	}
+	if usersService == nil {
+		panic("CreatePostHandler nil usersService")
+	}
 
 	return CreatePostHandler{
-		repo: repo,
+		repo:         repo,
+		usersService: usersService,
 	}
 }
 
@@ -34,5 +40,10 @@ func (h CreatePostHandler) Handle(ctx context.Context, cmd CreatePost) error {
 		return err
 	}
 
-	return h.repo.AddPost(post)
+	err = h.repo.AddPost(post)
+	if err != nil {
+		return err
+	}
+
+	return h.usersService.UpdatePostsCount(ctx, cmd.Author, 1)
 }
